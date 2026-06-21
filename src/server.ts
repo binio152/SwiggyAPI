@@ -1,8 +1,8 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import morgan from "morgan";
 import userRouter from "./routers/UserRouter";
-import { success } from "zod";
+import { AppError } from "./utils/AppError";
 
 class Server {
   public app = express();
@@ -11,6 +11,7 @@ class Server {
     this.setConfigs();
     this.setRoutes();
     this.notFoundHandler();
+    this.errorHandler();
   }
 
   setConfigs() {
@@ -32,12 +33,27 @@ class Server {
   }
 
   notFoundHandler() {
-    this.app.use((req, res) => {
-      res.status(404).json({
-        success: false,
-        message: `Can not ${req.method} ${req.originalUrl}`,
-      });
+    this.app.use((req, _res, next) => {
+      next(new AppError(`Can not ${req.method} ${req.originalUrl}`, 404));
     });
+  }
+
+  errorHandler() {
+    this.app.use(
+      (err: Error, _req: Request, res: Response, _next: NextFunction) => {
+        console.log(err);
+
+        if (err instanceof AppError) {
+          return res
+            .status(err.statusCode)
+            .json({ success: false, message: err.message.toString() });
+        }
+
+        return res
+          .status(500)
+          .json({ success: false, message: "Internal Server Error" });
+      },
+    );
   }
 }
 
