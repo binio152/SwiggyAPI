@@ -4,7 +4,7 @@ import Server from "./server";
 const server = new Server().app;
 
 server.listen(env.PORT, () => {
-  console.log("Server is running on http://localhost:3000");
+  console.log(`Server is running on http://localhost:${env.PORT}`);
 });
 
 export { server };

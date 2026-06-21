@@ -16,10 +16,12 @@
     "custom-env": "^2.0.6",
     "express": "^5.2.1",
     "mongoose": "^9.7.1",
+    "morgan": "^1.11.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^26.0.0",
     "@types/nodemon": "^1.19.6",
     "dotenv": "^17.4.2",

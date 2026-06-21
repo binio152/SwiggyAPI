@@ -1,5 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
+import morgan from "morgan";
+import UserRouter from "./routers/userRouter";
 
 class Server {
   public app = express();
@@ -11,6 +13,7 @@ class Server {
 
   setConfigs() {
     this.connectMongoDB(process.env.DB_URI || "mongodb://127.0.0.1:27017/test");
+    this.app.use(morgan("dev"));
   }
 
   async connectMongoDB(dbURI: string) {
@@ -22,7 +25,9 @@ class Server {
     }
   }
 
-  setRoutes() {}
+  setRoutes() {
+    this.app.use("/api/users", UserRouter);
+  }
 }
 
 export { Server };
