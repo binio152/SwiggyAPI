@@ -1,7 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
 import morgan from "morgan";
-import UserRouter from "./routers/userRouter";
+import userRouter from "./routers/UserRouter";
+import { success } from "zod";
 
 class Server {
   public app = express();
@@ -9,6 +10,7 @@ class Server {
   constructor() {
     this.setConfigs();
     this.setRoutes();
+    this.notFoundHandler();
   }
 
   setConfigs() {
@@ -26,7 +28,16 @@ class Server {
   }
 
   setRoutes() {
-    this.app.use("/api/users", UserRouter);
+    this.app.use("/api/users", userRouter);
+  }
+
+  notFoundHandler() {
+    this.app.use((req, res) => {
+      res.status(404).json({
+        success: false,
+        message: `Can not ${req.method} ${req.originalUrl}`,
+      });
+    });
   }
 }
 
