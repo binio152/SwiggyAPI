@@ -1,0 +1,31 @@
+import { z } from "zod";
+
+export enum UserRole {
+  USER = "user",
+  ADMIN = "admin",
+}
+
+export enum Status {
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+}
+
+export const signUpSchema = z.object(
+  {
+    name: z
+      .string("Name is required")
+      .min(3, "Name must be at least 3 charecters"),
+    email: z.string("Email is required").email(),
+    password: z
+      .string("Password is required")
+      .min(6, "Password must be at least 6 charecters"),
+    phone: z.string().optional(),
+    type: z.enum(UserRole).default(UserRole.USER),
+    status: z.enum(Status).default(Status.INACTIVE),
+  },
+  {
+    error: "No fields provided",
+  },
+);
+
+export type SignUpInput = z.infer<typeof signUpSchema>;

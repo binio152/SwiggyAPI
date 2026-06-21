@@ -1,8 +1,10 @@
 import express, { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
+import cors from "cors";
 import morgan from "morgan";
-import userRouter from "./routers/UserRouter";
 import { AppError } from "./utils/AppError";
+import AuthRouter from "./routers/AuthRouter";
+import UserRouter from "./routers/UserRouter";
 
 class Server {
   public app = express();
@@ -16,7 +18,10 @@ class Server {
 
   setConfigs() {
     this.connectMongoDB(process.env.DB_URI || "mongodb://127.0.0.1:27017/test");
+    this.app.use(cors());
     this.app.use(morgan("dev"));
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
   }
 
   async connectMongoDB(dbURI: string) {
@@ -29,7 +34,8 @@ class Server {
   }
 
   setRoutes() {
-    this.app.use("/api/users", userRouter);
+    this.app.use("/api/users", UserRouter);
+    this.app.use("/api/auth", AuthRouter);
   }
 
   notFoundHandler() {
@@ -46,7 +52,7 @@ class Server {
         if (err instanceof AppError) {
           return res
             .status(err.statusCode)
-            .json({ success: false, message: err.message.toString() });
+            .json({ success: false, message: err.message });
         }
 
         return res

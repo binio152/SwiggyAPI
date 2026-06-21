@@ -1,10 +1,15 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import { AppError } from "../utils/AppError";
+import User from "../models/User";
+import { Filter } from "../schemas/user.schema";
 
 class UserController {
-  getUserById(req: Request, res: Response) {
-    const { id } = req.params;
-    res.json({ id, name: "Binida" });
+  static getUserById(req: Request, res: Response, next: NextFunction) {
+    const { query } = req.validated as Filter;
+    console.log(query);
+
+    next(new AppError("User Not Found", 404));
   }
 }
 
-export default new UserController();
+export default UserController;
