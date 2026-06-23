@@ -40,7 +40,7 @@ const userSchema = new Schema(
     phone: {
       type: String,
     },
-    type: {
+    role: {
       type: String,
       enum: Object.values(UserRole),
       default: UserRole.USER,

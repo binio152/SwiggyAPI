@@ -2,6 +2,7 @@ import { Router } from "express";
 import Validate from "../middlewares/validate";
 import {
   resendVerificationTokenSchema,
+  signInSchema,
   signUpSchema,
   verificationTokenSchema,
 } from "../schemas";
@@ -23,6 +24,12 @@ class AuthRouter {
       "/signup",
       Validate.request({ schema: signUpSchema, type: "body" }),
       AuthController.signUp,
+    );
+
+    this.router.post(
+      "/signin",
+      Validate.request({ schema: signInSchema, type: "body" }),
+      AuthController.signIn,
     );
   }
 

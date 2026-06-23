@@ -3,6 +3,7 @@ import { env } from "../config/env";
 import ResendMail from "../utils/ResendMail";
 import Utils from "../utils/Utils";
 import bcrypt from "bcrypt";
+import jwt, { SignOptions } from "jsonwebtoken";
 
 class AuthService {
   static async generateVerificationTokenAndSendEmail(mail: { to: string }) {
@@ -32,6 +33,12 @@ class AuthService {
 
   static comparePassword(password: string, hashPassword: string) {
     return bcrypt.compare(password, hashPassword);
+  }
+
+  static jwtSign(payload: string | object) {
+    return jwt.sign(payload, env.JWT_SECRET, {
+      expiresIn: env.JWT_SECRET_TTL as SignOptions["expiresIn"],
+    });
   }
 }
 

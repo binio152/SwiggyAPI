@@ -1,14 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../utils/AppError";
 import User from "../models/User";
-import Utils from "../utils/Utils";
 import ResendMail from "../utils/ResendMail";
 import AuthService from "../services/AuthServices";
+import jwt, { SignOptions } from "jsonwebtoken";
+import { env } from "../config/env";
 
 class AuthController {
   static async signUp(req: Request, res: Response, next: NextFunction) {
     try {
-      const { name, username, email, password, phone, type, status } = req.body;
+      const { name, username, email, password, phone, role, status } = req.body;
 
       // Duplication Validatation
       const isExistingEmail = await User.findOne({ email });
@@ -36,7 +37,7 @@ class AuthController {
         verification_token_ttl,
         password: hashedPassword,
         phone,
-        type,
+        role,
         status,
       });
 
@@ -51,7 +52,50 @@ class AuthController {
     }
   }
 
-  static async verificationEmail(req: Request, res: Response, next: NextFunction) {
+  static async signIn(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { login, password } = req.body;
+
+      // Find user with email or username
+      const user = await User.findOne({
+        $or: [{ email: login }, { username: login }],
+      });
+      if (!user) return next(new AppError("Invalid credentials", 401));
+
+      // Password Validation
+      const isPasswordMatch = await AuthService.comparePassword(
+        password,
+        user.password,
+      );
+      if (!isPasswordMatch)
+        return next(new AppError("Invalid credentials", 401));
+
+      // Verified Email Validation
+      if (!user.email_verified)
+        return next(new AppError("Please verify your email first!", 403));
+
+      // JWT Creation
+      const token = AuthService.jwtSign({
+        userId: user._id,
+        role: user.role,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: `User ${user.username} sign in successfully!`,
+        token,
+      });
+    } catch (err) {
+      console.log("Error occurred while signing in");
+      next(err);
+    }
+  }
+
+  static async verificationEmail(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
     try {
       const { verification_token, email } = req.body;
 

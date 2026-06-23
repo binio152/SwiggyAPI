@@ -23,11 +23,25 @@ export const signUpSchema = z.object(
       .string("Password is required")
       .min(6, "Password must be at least 6 charecters"),
     phone: z.string().optional(),
-    type: z.enum(UserRole).default(UserRole.USER),
+    role: z.enum(UserRole).default(UserRole.USER),
     status: z.enum(Status).default(Status.INACTIVE),
   },
   {
     message: "All fields ( name, username, email, password ) are requried.",
+  },
+);
+
+export const signInSchema = z.object(
+  {
+    login: z
+      .string("Email or username is required")
+      .min(3, "Email  must be at least 3 charecters"),
+    password: z
+      .string("Password is required")
+      .min(6, "Password must be at least 6 charecters"),
+  },
+  {
+    message: "All fields ( username / email, password ) are requried.",
   },
 );
 
@@ -51,6 +65,7 @@ export const resendVerificationTokenSchema = z.object(
 );
 
 export type SignUpInput = z.infer<typeof signUpSchema>;
+export type SignInInput = z.infer<typeof signInSchema>;
 export type VerificationToken = z.infer<typeof verificationTokenSchema>;
 export type ResendVerificationToken = z.infer<
   typeof resendVerificationTokenSchema
