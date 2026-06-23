@@ -1,10 +1,10 @@
 import crypto from "crypto";
-import bcrypt from "bcrypt";
 import { env } from "../config/env";
+import ms from "ms";
 
 class Utils {
   static getStringTokenTTL() {
-    return (env.EMAIL_VERIFICATION_TOKEN_TTL / 60 / 1000).toString();
+    return ms(ms(env.EMAIL_VERIFICATION_TOKEN_TTL), { long: true });
   }
 
   static generateOTP(length: number): string {

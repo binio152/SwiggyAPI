@@ -27,7 +27,7 @@ class ResendMail {
         ${otp}
       </div>
 
-      <p>This OTP will expire in <strong>${ttl} minutes</strong>.</p>
+      <p>This OTP will expire in <strong>${ttl}</strong>.</p>
       <p>If you didn't request this verification, please ignore this email.</p>
 
       <hr />

@@ -1,3 +1,4 @@
+import ms from "ms";
 import { env } from "../config/env";
 import ResendMail from "../utils/ResendMail";
 import Utils from "../utils/Utils";
@@ -19,7 +20,7 @@ class AuthService {
   static generateVerificationToken() {
     const verification_token = Utils.generateOTP(6);
     const verification_token_ttl = new Date(
-      Date.now() + env.EMAIL_VERIFICATION_TOKEN_TTL,
+      Date.now() + ms(env.EMAIL_VERIFICATION_TOKEN_TTL),
     );
 
     return { verification_token, verification_token_ttl };

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { config as loadEnv } from "dotenv";
+import { StringValue } from "ms";
 
 loadEnv();
 
@@ -9,8 +10,9 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
-  EMAIL_VERIFICATION_TOKEN_TTL: z.coerce.number(),
-  RESEND_API_KEY: z.coerce.string()
+  EMAIL_VERIFICATION_TOKEN_TTL: z.custom<StringValue>(),
+  RESEND_API_KEY: z.coerce.string(),
+  JWT_SECRET: z.coerce.string().min(32),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
