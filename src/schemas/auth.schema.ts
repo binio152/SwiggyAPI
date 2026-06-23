@@ -18,7 +18,7 @@ export const signUpSchema = z.object(
     username: z
       .string("Username is required")
       .min(5, "Username must be at least 5 charecters"),
-    email: z.string("Email is required").email(),
+    email: z.string("Email is required").email("Email is invalid"),
     password: z
       .string("Password is required")
       .min(6, "Password must be at least 6 charecters"),
@@ -41,5 +41,17 @@ export const verificationTokenSchema = z.object(
   },
 );
 
+export const resendVerificationTokenSchema = z.object(
+  {
+    email: z.string("Email is required").email(),
+  },
+  {
+    error: "No fields provided",
+  },
+);
+
 export type SignUpInput = z.infer<typeof signUpSchema>;
 export type VerificationToken = z.infer<typeof verificationTokenSchema>;
+export type ResendVerificationToken = z.infer<
+  typeof resendVerificationTokenSchema
+>;

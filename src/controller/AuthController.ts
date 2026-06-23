@@ -1,10 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../utils/AppError";
 import User from "../models/User";
-import bcrypt from "bcrypt";
 import Utils from "../utils/Utils";
-import { env } from "../config/env";
 import ResendMail from "../utils/ResendMail";
+import AuthService from "../services/AuthServices";
 
 class AuthController {
   static async signUp(req: Request, res: Response, next: NextFunction) {
@@ -21,31 +20,20 @@ class AuthController {
         return next(new AppError("This username already exists.", 401));
 
       // Password Hashing
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const hashedPassword = await AuthService.hashPassword(password);
 
-      // Email Verification
-      const verification_token = Utils.generateVerificationToken(6);
-      const verification_token_time = new Date(
-        Date.now() + env.EMAIL_VERIFICATION_TOKEN_TTL,
-      );
-
-      const html = ResendMail.generateVerifyEmailHTML(verification_token);
-      const { error: resendError } = await ResendMail.sendEmail({
-        to: email,
-        subject: "Email Verification",
-        html,
-      });
-
-      if (resendError)
-        return res.status(400).json({ success: false, message: resendError });
+      // Send Email Verification
+      const { verification_token, verification_token_ttl, error } =
+        await AuthService.generateVerificationTokenAndSendEmail({ to: email });
+      if (error)
+        return res.status(400).json({ success: false, message: error });
 
       const newUser = await User.create({
         name,
         username,
         email,
         verification_token,
-        verification_token_time,
+        verification_token_ttl,
         password: hashedPassword,
         phone,
         type,
@@ -63,17 +51,26 @@ class AuthController {
     }
   }
 
-  static async verifyEmail(req: Request, res: Response, next: NextFunction) {
+  static async verificationEmail(req: Request, res: Response, next: NextFunction) {
     try {
       const { verification_token, email } = req.body;
 
+      // Find user with provided email and check if token is not exprired
+      // Update email verify status and delete unnecessary fields
       const user = await User.findOneAndUpdate(
         {
           email,
           verification_token,
-          verification_token_time: { $gt: Date.now() },
+          verification_token_ttl: { $gt: Date.now() },
         },
-        { email_verified: true },
+        {
+          email_verified: true,
+
+          $unset: {
+            verification_token: 1,
+            verification_token_ttl: 1,
+          },
+        },
         {
           new: true,
         },
@@ -91,6 +88,54 @@ class AuthController {
         .json({ success: true, message: "Email verify successfully!", user });
     } catch (err) {
       console.log("Error occurred while verifying email");
+      next(err);
+    }
+  }
+
+  static async resendVerificationEmail(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { email } = req.body;
+      // Token Regeneration
+      const { verification_token, verification_token_ttl } =
+        AuthService.generateVerificationToken();
+
+      // Update verification token and TTL
+      const user = await User.findOneAndUpdate(
+        {
+          email,
+        },
+        { verification_token, verification_token_ttl },
+        {
+          new: true,
+        },
+      );
+      if (!user)
+        return next(
+          new AppError(
+            "Email verification token is exprired. Please try again!",
+            401,
+          ),
+        );
+
+      // Resend Verification Token
+      const { error } = await ResendMail.sendVerificationToken({
+        token: verification_token,
+        to: email,
+      });
+      if (error)
+        return res.status(400).json({ success: false, message: error });
+
+      return res.status(201).json({
+        success: true,
+        message: "Resend verify email successfully!",
+        user,
+      });
+    } catch (err) {
+      console.log("Error occurred while resending verify email");
       next(err);
     }
   }

@@ -1,11 +1,11 @@
-import express from "express";
 import { Resend } from "resend";
 import { env } from "../config/env";
+import Utils from "./Utils";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
 class ResendMail {
-  static generateVerifyEmailHTML(otp: string) {
+  static generateVerifyEmailHTML(otp: string, ttl: string) {
     return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
       <h2>Email Verification</h2>
@@ -27,7 +27,7 @@ class ResendMail {
         ${otp}
       </div>
 
-      <p>This OTP will expire in <strong>10 minutes</strong>.</p>
+      <p>This OTP will expire in <strong>${ttl} minutes</strong>.</p>
       <p>If you didn't request this verification, please ignore this email.</p>
 
       <hr />
@@ -35,6 +35,18 @@ class ResendMail {
       <p style="font-size: 12px; color: #666;">© 2026 Swiggy Clone App</p>
     </div>
   `;
+  }
+
+  static async sendVerificationToken(mail: { token: string; to: string }) {
+    const tokenTtl = Utils.getStringTokenTTL();
+    const html = this.generateVerifyEmailHTML(mail.token, tokenTtl);
+    const { data, error } = await this.sendEmail({
+      to: mail.to,
+      subject: "Email Verification",
+      html,
+    });
+
+    return { data, error };
   }
 
   static async sendEmail(mail: { to: string; subject: string; html: string }) {

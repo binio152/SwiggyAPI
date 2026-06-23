@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 import { Status, UserRole } from "../schemas";
 
-const UserSchema = new Schema(
+const userSchema = new Schema(
   {
     name: {
       type: String,
@@ -23,6 +23,14 @@ const UserSchema = new Schema(
     email_verified: {
       type: Boolean,
       default: false,
+    },
+    verification_token: {
+      type: String,
+      required: true,
+    },
+    verification_token_ttl: {
+      type: Date,
+      required: true,
     },
     password: {
       type: String,
@@ -48,6 +56,6 @@ const UserSchema = new Schema(
   },
 );
 
-const User = model("User", UserSchema);
+const User = model("User", userSchema);
 
 export default User;

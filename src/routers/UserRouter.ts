@@ -1,6 +1,6 @@
 import { Router } from "express";
 import UserController from "../controller/UserController";
-import { validate } from "../middlewares/validate";
+import Validate from "../middlewares/validate";
 import { FilterSchema } from "../schemas/user.schema";
 
 class UserRouter {
@@ -13,7 +13,11 @@ class UserRouter {
   }
 
   getRoutes() {
-    this.router.get("/:id", validate(FilterSchema), UserController.getUserById);
+    this.router.get(
+      "/:id",
+      Validate.request({ schema: FilterSchema, type: "body" }),
+      UserController.getUserById,
+    );
   }
 
   postRoutes() {}

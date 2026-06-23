@@ -1,6 +1,10 @@
 import { Router } from "express";
 import Validate from "../middlewares/validate";
-import { signUpSchema, verificationTokenSchema } from "../schemas";
+import {
+  resendVerificationTokenSchema,
+  signUpSchema,
+  verificationTokenSchema,
+} from "../schemas";
 import AuthController from "../controller/AuthController";
 
 class AuthRouter {
@@ -26,7 +30,13 @@ class AuthRouter {
     this.router.patch(
       "/verify",
       Validate.request({ schema: verificationTokenSchema, type: "body" }),
-      AuthController.verifyEmail,
+      AuthController.verificationEmail,
+    );
+
+    this.router.patch(
+      "/resendVerifyEmail",
+      Validate.request({ schema: resendVerificationTokenSchema, type: "body" }),
+      AuthController.resendVerificationEmail,
     );
   }
 }

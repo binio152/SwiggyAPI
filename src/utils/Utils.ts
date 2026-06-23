@@ -1,7 +1,13 @@
 import crypto from "crypto";
+import bcrypt from "bcrypt";
+import { env } from "../config/env";
 
 class Utils {
-  static generateVerificationToken(length: number): string {
+  static getStringTokenTTL() {
+    return (env.EMAIL_VERIFICATION_TOKEN_TTL / 60 / 1000).toString();
+  }
+
+  static generateOTP(length: number): string {
     let otp = "";
     const digits = "0123456789";
     const array = new Uint32Array(length);
