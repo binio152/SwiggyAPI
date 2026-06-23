@@ -15,6 +15,9 @@ export const signUpSchema = z.object(
     name: z
       .string("Name is required")
       .min(3, "Name must be at least 3 charecters"),
+    username: z
+      .string("Username is required")
+      .min(5, "Username must be at least 5 charecters"),
     email: z.string("Email is required").email(),
     password: z
       .string("Password is required")

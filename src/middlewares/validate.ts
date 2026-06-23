@@ -1,19 +1,32 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodTypeAny } from "zod";
 
-export const validate =
-  (schema: ZodTypeAny) => (req: Request, res: Response, next: NextFunction) => {
-    const result = schema.safeParse(req.body);
+interface ValidateProps {
+  schema: ZodTypeAny;
+  type: "body" | "query" | "params";
+}
 
-    if (!result.success) {
-      const errors = Object.fromEntries(
-        result.error.issues.map((issue) => [issue.path.at(-1), issue.message]),
-      );
+class Validate {
+  static request({ schema, type }: ValidateProps) {
+    return (req: Request, res: Response, next: NextFunction) => {
+      const result = schema.safeParse(req[type]);
 
-      console.log(result.error.issues);
+      if (!result.success) {
+        const errors = Object.fromEntries(
+          result.error.issues.map((issue) => [
+            issue.path.at(-1),
+            issue.message,
+          ]),
+        );
 
-      return res.status(400).json({ success: false, message: errors });
-    }
+        console.log(result.error.issues);
 
-    next();
-  };
+        return res.status(400).json({ success: false, message: errors });
+      }
+
+      next();
+    };
+  }
+}
+
+export default Validate;

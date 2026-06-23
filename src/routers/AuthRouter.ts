@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validate } from "../middlewares/validate";
+import Validate from "../middlewares/validate";
 import { signUpSchema } from "../schemas";
 import AuthController from "../controller/AuthController";
 
@@ -14,7 +14,11 @@ class AuthRouter {
   getRoutes() {}
 
   postRoutes() {
-    this.router.post("/signup", validate(signUpSchema), AuthController.signUp);
+    this.router.post(
+      "/signup",
+      Validate.request({ schema: signUpSchema, type: "body" }),
+      AuthController.signUp,
+    );
   }
 }
 
