@@ -37,12 +37,14 @@ class AuthRouter {
     this.router.patch(
       "/verify",
       Validate.request({ schema: verificationTokenSchema, type: "body" }),
+      Validate.jwt,
       AuthController.verificationEmail,
     );
 
     this.router.patch(
       "/resendVerifyEmail",
       Validate.request({ schema: resendVerificationTokenSchema, type: "body" }),
+      Validate.jwt,
       AuthController.resendVerificationEmail,
     );
   }

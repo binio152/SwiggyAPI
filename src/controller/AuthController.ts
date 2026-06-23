@@ -3,8 +3,6 @@ import { AppError } from "../utils/AppError";
 import User from "../models/User";
 import ResendMail from "../utils/ResendMail";
 import AuthService from "../services/AuthServices";
-import jwt, { SignOptions } from "jsonwebtoken";
-import { env } from "../config/env";
 
 class AuthController {
   static async signUp(req: Request, res: Response, next: NextFunction) {
@@ -12,13 +10,18 @@ class AuthController {
       const { name, username, email, password, phone, role, status } = req.body;
 
       // Duplication Validatation
-      const isExistingEmail = await User.findOne({ email });
-      if (isExistingEmail)
-        return next(new AppError("This email already exists.", 401));
+      const user = await User.findOne(
+        { $or: [{ email }, { username }] },
+        { email: 1, username: 1 },
+      );
 
-      const isExistingUser = await User.findOne({ username });
-      if (isExistingUser)
-        return next(new AppError("This username already exists.", 401));
+      if (user) {
+        if (user.email === email)
+          return next(new AppError("This email already exists.", 409));
+
+        if (user.username === username)
+          return next(new AppError("This username already exists.", 409));
+      }
 
       // Password Hashing
       const hashedPassword = await AuthService.hashPassword(password);
@@ -28,6 +31,12 @@ class AuthController {
         await AuthService.generateVerificationTokenAndSendEmail({ to: email });
       if (error)
         return res.status(400).json({ success: false, message: error });
+
+      // JWT Creation
+      const token = AuthService.jwtSign({
+        userId: user?._id,
+        role: user?.role,
+      });
 
       const newUser = await User.create({
         name,
@@ -45,6 +54,7 @@ class AuthController {
         success: true,
         message: "Created account successfully",
         user: newUser,
+        token,
       });
     } catch (err) {
       console.log("Error occurred while signing up");
@@ -71,7 +81,7 @@ class AuthController {
         return next(new AppError("Invalid credentials", 401));
 
       // Verified Email Validation
-      if (!user.email_verified)
+      if (!user.verified_email)
         return next(new AppError("Please verify your email first!", 403));
 
       // JWT Creation
@@ -108,7 +118,7 @@ class AuthController {
           verification_token_ttl: { $gt: Date.now() },
         },
         {
-          email_verified: true,
+          verified_email: true,
 
           $unset: {
             verification_token: 1,
@@ -147,22 +157,22 @@ class AuthController {
       const { verification_token, verification_token_ttl } =
         AuthService.generateVerificationToken();
 
+      // Find user with same email and not verified yet
       // Update verification token and TTL
       const user = await User.findOneAndUpdate(
         {
           email,
+          verified_email: false,
         },
         { verification_token, verification_token_ttl },
         {
           new: true,
         },
       );
+
       if (!user)
         return next(
-          new AppError(
-            "Email verification token is exprired. Please try again!",
-            401,
-          ),
+          new AppError("Fail to resend email. Please try again!", 401),
         );
 
       // Resend Verification Token

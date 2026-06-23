@@ -40,6 +40,10 @@ class AuthService {
       expiresIn: env.JWT_SECRET_TTL as SignOptions["expiresIn"],
     });
   }
+
+  static jwtVerify(token: string, secret: string) {
+    return jwt.verify(token, env.JWT_SECRET);
+  };
 }
 
 export default AuthService;
