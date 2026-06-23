@@ -1,6 +1,6 @@
 import { Router } from "express";
 import Validate from "../middlewares/validate";
-import { signUpSchema } from "../schemas";
+import { signUpSchema, verificationTokenSchema } from "../schemas";
 import AuthController from "../controller/AuthController";
 
 class AuthRouter {
@@ -9,6 +9,7 @@ class AuthRouter {
   constructor() {
     this.router = Router();
     this.postRoutes();
+    this.patchRoutes();
   }
 
   getRoutes() {}
@@ -18,6 +19,14 @@ class AuthRouter {
       "/signup",
       Validate.request({ schema: signUpSchema, type: "body" }),
       AuthController.signUp,
+    );
+  }
+
+  patchRoutes() {
+    this.router.patch(
+      "/verify",
+      Validate.request({ schema: verificationTokenSchema, type: "body" }),
+      AuthController.verifyEmail,
     );
   }
 }

@@ -27,8 +27,19 @@ export const signUpSchema = z.object(
     status: z.enum(Status).default(Status.INACTIVE),
   },
   {
+    message: "All fields ( name, username, email, password ) are requried.",
+  },
+);
+
+export const verificationTokenSchema = z.object(
+  {
+    email: z.string("Email is required").email(),
+    verification_token: z.string("Verification token is required"),
+  },
+  {
     error: "No fields provided",
   },
 );
 
 export type SignUpInput = z.infer<typeof signUpSchema>;
+export type VerificationToken = z.infer<typeof verificationTokenSchema>;
