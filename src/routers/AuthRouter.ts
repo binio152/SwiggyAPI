@@ -1,6 +1,8 @@
 import { Router } from "express";
 import Validate from "../middlewares/validate";
 import {
+  changePasswordSchema,
+  forgotPasswordSchema,
   resendVerificationTokenSchema,
   resetPasswordSchema,
   signInSchema,
@@ -35,7 +37,7 @@ class AuthRouter {
 
     this.router.post(
       "/forgot-password",
-      Validate.request({ schema: resetPasswordSchema, type: "body" }),
+      Validate.request({ schema: forgotPasswordSchema, type: "body" }),
       AuthController.sendForgotPasswordOTP,
     );
 
@@ -44,6 +46,13 @@ class AuthRouter {
       Validate.request({ schema: resendVerificationTokenSchema, type: "body" }),
       Validate.jwt,
       AuthController.resendVerificationEmail,
+    );
+
+     this.router.post(
+      "/change-password",
+      Validate.request({ schema: changePasswordSchema, type: "body" }),
+      Validate.jwt,
+      AuthController.changePassword,
     );
   }
 
@@ -54,6 +63,14 @@ class AuthRouter {
       Validate.jwt,
       AuthController.verificationEmail,
     );
+
+    this.router.patch(
+      "/reset-password",
+      Validate.request({ schema: resetPasswordSchema, type: "body" }),
+      AuthController.resetPassword,
+    );
+
+   
   }
 }
 

@@ -26,21 +26,19 @@ const userSchema = new Schema(
     },
     verification_token: {
       type: String,
-      required: true,
     },
     verification_token_ttl: {
       type: Date,
-      required: true,
     },
     password: {
       type: String,
       required: true,
       minLength: 6,
     },
-    reset_passwork_token: {
+    reset_password_token: {
       type: String,
     },
-    reset_passwork_token_ttl: {
+    reset_password_token_ttl: {
       type: Date,
     },
     phone: {

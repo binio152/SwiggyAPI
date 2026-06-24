@@ -33,7 +33,7 @@ class AuthService {
   }
 
   static jwtVerify(token: string, secret: string) {
-    return jwt.verify(token, secret);
+    return jwt.verify(token, secret) as JwtPayloadBase;
   }
 
   static jwtPurposeVerify(token: string, purpose: TokenPurpose) {

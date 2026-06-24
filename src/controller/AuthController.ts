@@ -3,9 +3,10 @@ import { AppError } from "../utils/AppError";
 import User from "../models/User";
 import ResendMail from "../utils/ResendMail";
 import AuthService from "../services/AuthServices";
-import { env } from "process";
 import { StringValue } from "ms";
 import { EmailTypes, JWTPurposes } from "../constants";
+import { env } from "../config/env";
+import { JwtPayload } from "jsonwebtoken";
 
 class AuthController {
   static async signUp(req: Request, res: Response, next: NextFunction) {
@@ -31,13 +32,11 @@ class AuthController {
 
       // Generate OTP Send Email Verification
       const { token: verification_token, token_ttl: verification_token_ttl } =
-        AuthService.generateVerificationToken(
-          env.EMAIL_VERIFICATION_TOKEN_TTL as StringValue,
-        );
+        AuthService.generateVerificationToken(env.EMAIL_VERIFICATION_TOKEN_TTL);
 
       const { error } = await ResendMail.sendVerificationToken({
         token: verification_token,
-        ttl: env.EMAIL_VERIFICATION_TOKEN_TTL as StringValue,
+        ttl: env.EMAIL_VERIFICATION_TOKEN_TTL,
         to: email,
         type: EmailTypes.VERIFICATION,
       });
@@ -124,12 +123,7 @@ class AuthController {
 
       // Token Purpose Validation
       const accessToken = AuthService.getAcessToken(req);
-      if (
-        !AuthService.jwtPurposeVerify(
-          accessToken,
-          JWTPurposes.VERIFY_EMAIL,
-        )
-      )
+      if (!AuthService.jwtPurposeVerify(accessToken, JWTPurposes.VERIFY_EMAIL))
         next(new AppError("Invalid token purpose", 401));
 
       // Find user with provided email and check if token is not exprired
@@ -162,7 +156,7 @@ class AuthController {
 
       return res.status(201).json({
         success: true,
-        message: "Email verify successfully!",
+        message: "Email verified successfully!",
         user, // DEV ONLY
       });
     } catch (err) {
@@ -181,19 +175,12 @@ class AuthController {
 
       // Token Purpose Validation
       const accessToken = AuthService.getAcessToken(req);
-      if (
-        !AuthService.jwtPurposeVerify(
-          accessToken,
-          JWTPurposes.VERIFY_EMAIL,
-        )
-      )
+      if (!AuthService.jwtPurposeVerify(accessToken, JWTPurposes.VERIFY_EMAIL))
         next(new AppError("Invalid token purpose", 401));
 
       // Token Regeneration
       const { token: verification_token, token_ttl: verification_token_ttl } =
-        AuthService.generateVerificationToken(
-          env.EMAIL_VERIFICATION_TOKEN_TTL as StringValue,
-        );
+        AuthService.generateVerificationToken(env.EMAIL_VERIFICATION_TOKEN_TTL);
 
       // Find user with same email and not verified yet
       // Update verification token and TTL
@@ -216,7 +203,7 @@ class AuthController {
       // Resend Verification Token
       const { error } = await ResendMail.sendVerificationToken({
         token: verification_token,
-        ttl: env.EMAIL_VERIFICATION_TOKEN_TTL as StringValue,
+        ttl: env.EMAIL_VERIFICATION_TOKEN_TTL,
         to: email,
         type: EmailTypes.VERIFICATION,
       });
@@ -244,8 +231,8 @@ class AuthController {
 
       // Reset Password OTP Generation
       const {
-        token: reset_passwork_token,
-        token_ttl: reset_passwork_token_ttl,
+        token: reset_password_token,
+        token_ttl: reset_password_token_ttl,
       } = AuthService.generateVerificationToken(
         env.RESET_PASSWORD_TOKEN_TTL as StringValue,
       );
@@ -253,18 +240,18 @@ class AuthController {
       // Finding user with provided username / email
       const user = await User.findOneAndUpdate(
         { $or: [{ username: login }, { email: login }] },
-        { reset_passwork_token, reset_passwork_token_ttl },
+        { reset_password_token, reset_password_token_ttl },
         { returnDocument: "after" },
       );
 
-      if (!user) return next(new AppError("User not exists", 404));
+      if (!user) return next(new AppError("User is not exists", 404));
 
       if (!user.verified_email)
         return next(new AppError("Please verify your email first!", 403));
 
       // Send Email
       const { error } = await ResendMail.sendVerificationToken({
-        token: reset_passwork_token,
+        token: reset_password_token,
         ttl: env.RESET_PASSWORD_TOKEN_TTL as StringValue,
         to: user.email,
         type: EmailTypes.RESET_PASSWORD,
@@ -285,8 +272,79 @@ class AuthController {
 
   static async resetPassword(req: Request, res: Response, next: NextFunction) {
     try {
+      const { login, reset_password_token, new_password } = req.body;
+
+      const password = await AuthService.hashPassword(new_password);
+
+      // Finding User with provided info and check if reset token ttl is not exprired yet
+      // Update password and delete unnecessary fields
+      const user = await User.findOneAndUpdate(
+        {
+          $or: [{ username: login }, { email: login }],
+          reset_password_token,
+          reset_password_token_ttl: { $gt: Date.now() },
+          verified_email: true,
+        },
+        {
+          password,
+
+          $unset: {
+            reset_password_token: 1,
+            reset_password_token_ttl: 1,
+          },
+        },
+        {
+          returnDocument: "after",
+        },
+      );
+
+      if (!user)
+        return next(
+          new AppError(
+            "Unable to reset password. Invalid credentials or expired token.",
+            404,
+          ),
+        );
+
+      return res.status(200).json({
+        success: true,
+        message: "Password updated successfully!",
+        user,
+      });
     } catch (err) {
-      console.log("Error occurred while resending verify email");
+      console.log("Error occurred while resetting password");
+      next(err);
+    }
+  }
+
+  static async changePassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { password, new_password } = req.body;
+      const userId = req.user?.userId; // Get UserId from req.user
+
+      // JWT Purpose Validation
+      const accessToken = AuthService.getAcessToken(req);
+      if (!AuthService.jwtPurposeVerify(accessToken, JWTPurposes.ACCESS))
+        next(new AppError("Invalid token purpose", 401));
+
+      const user = await User.findById(userId);
+
+      if (!user) return next(new AppError("User is not exist", 404));
+      if (!user.verified_email)
+        return next(new AppError("Please verify your email first!", 403));
+
+      const hashedPassword = await AuthService.hashPassword(new_password);
+      user.password = hashedPassword;
+      user.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Password updated successfully",
+        password,
+        new_password,
+      });
+    } catch (err) {
+      console.log("Error occurred while updating password");
       next(err);
     }
   }
