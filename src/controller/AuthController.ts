@@ -29,7 +29,7 @@ class AuthController {
       // Password Hashing
       const hashedPassword = await AuthService.hashPassword(password);
 
-      // Send Email Verification
+      // Generate OTP Send Email Verification
       const { token: verification_token, token_ttl: verification_token_ttl } =
         AuthService.generateVerificationToken(
           env.EMAIL_VERIFICATION_TOKEN_TTL as StringValue,
@@ -65,7 +65,7 @@ class AuthController {
       return res.status(201).json({
         success: true,
         message: "Created account successfully",
-        user: newUser,
+        user: newUser, // DEV ONLY
         token,
       });
     } catch (err) {
@@ -149,9 +149,11 @@ class AuthController {
           ),
         );
 
-      return res
-        .status(201)
-        .json({ success: true, message: "Email verify successfully!", user });
+      return res.status(201).json({
+        success: true,
+        message: "Email verify successfully!",
+        user, // DEV ONLY
+      });
     } catch (err) {
       console.log("Error occurred while verifying email");
       next(err);
@@ -202,7 +204,7 @@ class AuthController {
       return res.status(201).json({
         success: true,
         message: "Resend verify email successfully!",
-        user,
+        user, // DEV ONLY
       });
     } catch (err) {
       console.log("Error occurred while resending verify email");
@@ -251,7 +253,7 @@ class AuthController {
       return res.status(201).json({
         success: true,
         message: "Send reset password email successfully!",
-        user,
+        user, // DEV ONLY
       });
     } catch (err) {
       console.log("Error occurred while verifying email");
