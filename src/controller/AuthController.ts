@@ -4,8 +4,8 @@ import User from "../models/User";
 import ResendMail from "../utils/ResendMail";
 import AuthService from "../services/AuthServices";
 import { env } from "process";
-import ms, { StringValue } from "ms";
-import { EmailTypes } from "../constants/emailTypes";
+import { StringValue } from "ms";
+import { EmailTypes, JWTPurposes } from "../constants";
 
 class AuthController {
   static async signUp(req: Request, res: Response, next: NextFunction) {
@@ -59,7 +59,7 @@ class AuthController {
       // JWT Creation
       const token = AuthService.jwtSign({
         userId: newUser._id,
-        role: newUser.role,
+        purposes: [JWTPurposes.VERIFY_EMAIL],
       });
 
       return res.status(201).json({
@@ -100,6 +100,7 @@ class AuthController {
       const token = AuthService.jwtSign({
         userId: user._id,
         role: user.role,
+        purposes: [JWTPurposes.ACCESS],
       });
 
       return res.status(200).json({
@@ -120,6 +121,16 @@ class AuthController {
   ) {
     try {
       const { verification_token, email } = req.body;
+
+      // Token Purpose Validation
+      const accessToken = AuthService.getAcessToken(req);
+      if (
+        !AuthService.jwtPurposeVerify(
+          accessToken,
+          JWTPurposes.VERIFY_EMAIL,
+        )
+      )
+        next(new AppError("Invalid token purpose", 401));
 
       // Find user with provided email and check if token is not exprired
       // Update email verify status and delete unnecessary fields
@@ -167,6 +178,17 @@ class AuthController {
   ) {
     try {
       const { email } = req.body;
+
+      // Token Purpose Validation
+      const accessToken = AuthService.getAcessToken(req);
+      if (
+        !AuthService.jwtPurposeVerify(
+          accessToken,
+          JWTPurposes.VERIFY_EMAIL,
+        )
+      )
+        next(new AppError("Invalid token purpose", 401));
+
       // Token Regeneration
       const { token: verification_token, token_ttl: verification_token_ttl } =
         AuthService.generateVerificationToken(
@@ -212,7 +234,7 @@ class AuthController {
     }
   }
 
-  static async sendResetPasswordOTP(
+  static async sendForgotPasswordOTP(
     req: Request,
     res: Response,
     next: NextFunction,

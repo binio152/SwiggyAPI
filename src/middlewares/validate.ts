@@ -34,10 +34,14 @@ class Validate {
 
   static jwt(req: Request, res: Response, next: NextFunction) {
     try {
-      const token = req.headers.authorization?.split(" ")[1];
+      const token = AuthService.getAcessToken(req);
       if (!token) return next(new AppError("Unauthorized", 401));
 
-      const payload = AuthService.jwtVerify(token, env.JWT_SECRET);
+      const payload = AuthService.jwtVerify(
+        token,
+        env.JWT_SECRET,
+      ) as JwtPayloadBase;
+
       req.user = payload;
 
       console.log(payload); // DEV ONLY

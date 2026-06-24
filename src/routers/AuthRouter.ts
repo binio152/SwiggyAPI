@@ -32,27 +32,27 @@ class AuthRouter {
       Validate.request({ schema: signInSchema, type: "body" }),
       AuthController.signIn,
     );
-  }
 
-  patchRoutes() {
-    this.router.patch(
-      "/verify",
-      Validate.request({ schema: verificationTokenSchema, type: "body" }),
-      Validate.jwt,
-      AuthController.verificationEmail,
+    this.router.post(
+      "/forgot-password",
+      Validate.request({ schema: resetPasswordSchema, type: "body" }),
+      AuthController.sendForgotPasswordOTP,
     );
 
-    this.router.patch(
-      "/resendVerifyEmail",
+    this.router.post(
+      "/resend-verification",
       Validate.request({ schema: resendVerificationTokenSchema, type: "body" }),
       Validate.jwt,
       AuthController.resendVerificationEmail,
     );
+  }
 
+  patchRoutes() {
     this.router.patch(
-      "/reset/password",
-      Validate.request({ schema: resetPasswordSchema, type: "body" }),
-      AuthController.sendResetPasswordOTP,
+      "/verify-email",
+      Validate.request({ schema: verificationTokenSchema, type: "body" }),
+      Validate.jwt,
+      AuthController.verificationEmail,
     );
   }
 }

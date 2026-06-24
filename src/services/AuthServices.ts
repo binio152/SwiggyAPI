@@ -1,11 +1,17 @@
 import ms, { StringValue } from "ms";
 import { env } from "../config/env";
-import ResendMail from "../utils/ResendMail";
 import Utils from "../utils/Utils";
 import bcrypt from "bcrypt";
 import jwt, { SignOptions } from "jsonwebtoken";
+import { Request } from "express";
 
 class AuthService {
+  static getAcessToken(req: Request) {
+    return req.headers.authorization
+      ? req.headers.authorization?.split(" ")[1]
+      : "";
+  }
+
   static generateVerificationToken(ttl: StringValue) {
     const token = Utils.generateOTP(6);
     const token_ttl = new Date(Date.now() + ms(ttl));
@@ -27,7 +33,14 @@ class AuthService {
   }
 
   static jwtVerify(token: string, secret: string) {
-    return jwt.verify(token, env.JWT_SECRET);
+    return jwt.verify(token, secret);
+  }
+
+  static jwtPurposeVerify(token: string, purpose: TokenPurpose) {
+    const jwt = this.jwtVerify(token, env.JWT_SECRET) as JwtPayloadBase;
+    const purposes = jwt.purposes;
+
+    return purposes.includes(purpose) ?? false;
   }
 }
 

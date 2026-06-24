@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import { env } from "../config/env";
 import Utils from "./Utils";
-import { EmailTypes } from "../constants/emailTypes";
+import { EmailTypes } from "../constants";
 import { StringValue } from "ms";
 
 const resend = new Resend(env.RESEND_API_KEY);
