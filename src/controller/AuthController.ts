@@ -44,12 +44,6 @@ class AuthController {
       if (error)
         return res.status(400).json({ success: false, message: error });
 
-      // JWT Creation
-      const token = AuthService.jwtSign({
-        userId: user?._id,
-        role: user?.role,
-      });
-
       const newUser = await User.create({
         name,
         username,
@@ -60,6 +54,12 @@ class AuthController {
         phone,
         role,
         status,
+      });
+
+      // JWT Creation
+      const token = AuthService.jwtSign({
+        userId: newUser._id,
+        role: newUser.role,
       });
 
       return res.status(201).json({
@@ -138,7 +138,7 @@ class AuthController {
           },
         },
         {
-          new: true,
+          returnDocument: "after",
         },
       );
       if (!user)
@@ -180,7 +180,7 @@ class AuthController {
         },
         { verification_token, verification_token_ttl },
         {
-          new: true,
+          returnDocument: "after",
         },
       );
 
@@ -230,7 +230,7 @@ class AuthController {
       const user = await User.findOneAndUpdate(
         { $or: [{ username: login }, { email: login }] },
         { reset_passwork_token, reset_passwork_token_ttl },
-        { new: true },
+        { returnDocument: "after" },
       );
 
       if (!user) return next(new AppError("User not exists", 404));
@@ -255,6 +255,14 @@ class AuthController {
       });
     } catch (err) {
       console.log("Error occurred while verifying email");
+      next(err);
+    }
+  }
+
+  static async resetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+    } catch (err) {
+      console.log("Error occurred while resending verify email");
       next(err);
     }
   }

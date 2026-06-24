@@ -40,6 +40,8 @@ class Validate {
       const payload = AuthService.jwtVerify(token, env.JWT_SECRET);
       req.user = payload;
 
+      console.log(payload); // DEV ONLY
+
       next();
     } catch {
       next(new AppError("Invalid Token", 401));
