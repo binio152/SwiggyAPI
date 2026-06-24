@@ -3,6 +3,9 @@ import { AppError } from "../utils/AppError";
 import User from "../models/User";
 import ResendMail from "../utils/ResendMail";
 import AuthService from "../services/AuthServices";
+import { env } from "process";
+import ms, { StringValue } from "ms";
+import { EmailTypes } from "../constants/emailTypes";
 
 class AuthController {
   static async signUp(req: Request, res: Response, next: NextFunction) {
@@ -27,8 +30,17 @@ class AuthController {
       const hashedPassword = await AuthService.hashPassword(password);
 
       // Send Email Verification
-      const { verification_token, verification_token_ttl, error } =
-        await AuthService.generateVerificationTokenAndSendEmail({ to: email });
+      const { token: verification_token, token_ttl: verification_token_ttl } =
+        AuthService.generateVerificationToken(
+          env.EMAIL_VERIFICATION_TOKEN_TTL as StringValue,
+        );
+
+      const { error } = await ResendMail.sendVerificationToken({
+        token: verification_token,
+        ttl: env.EMAIL_VERIFICATION_TOKEN_TTL as StringValue,
+        to: email,
+        type: EmailTypes.VERIFICATION,
+      });
       if (error)
         return res.status(400).json({ success: false, message: error });
 
@@ -154,8 +166,10 @@ class AuthController {
     try {
       const { email } = req.body;
       // Token Regeneration
-      const { verification_token, verification_token_ttl } =
-        AuthService.generateVerificationToken();
+      const { token: verification_token, token_ttl: verification_token_ttl } =
+        AuthService.generateVerificationToken(
+          env.EMAIL_VERIFICATION_TOKEN_TTL as StringValue,
+        );
 
       // Find user with same email and not verified yet
       // Update verification token and TTL
@@ -178,7 +192,9 @@ class AuthController {
       // Resend Verification Token
       const { error } = await ResendMail.sendVerificationToken({
         token: verification_token,
+        ttl: env.EMAIL_VERIFICATION_TOKEN_TTL as StringValue,
         to: email,
+        type: EmailTypes.VERIFICATION,
       });
       if (error)
         return res.status(400).json({ success: false, message: error });
@@ -190,6 +206,55 @@ class AuthController {
       });
     } catch (err) {
       console.log("Error occurred while resending verify email");
+      next(err);
+    }
+  }
+
+  static async sendResetPasswordOTP(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { login } = req.body;
+
+      // Reset Password OTP Generation
+      const {
+        token: reset_passwork_token,
+        token_ttl: reset_passwork_token_ttl,
+      } = AuthService.generateVerificationToken(
+        env.RESET_PASSWORD_TOKEN_TTL as StringValue,
+      );
+
+      // Finding user with provided username / email
+      const user = await User.findOneAndUpdate(
+        { $or: [{ username: login }, { email: login }] },
+        { reset_passwork_token, reset_passwork_token_ttl },
+        { new: true },
+      );
+
+      if (!user) return next(new AppError("User not exists", 404));
+
+      if (!user.verified_email)
+        return next(new AppError("Please verify your email first!", 403));
+
+      // Send Email
+      const { error } = await ResendMail.sendVerificationToken({
+        token: reset_passwork_token,
+        ttl: env.RESET_PASSWORD_TOKEN_TTL as StringValue,
+        to: user.email,
+        type: EmailTypes.RESET_PASSWORD,
+      });
+      if (error)
+        return res.status(400).json({ success: false, message: error });
+
+      return res.status(201).json({
+        success: true,
+        message: "Send reset password email successfully!",
+        user,
+      });
+    } catch (err) {
+      console.log("Error occurred while verifying email");
       next(err);
     }
   }

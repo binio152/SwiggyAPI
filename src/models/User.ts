@@ -37,6 +37,12 @@ const userSchema = new Schema(
       required: true,
       minLength: 6,
     },
+    reset_passwork_token: {
+      type: String,
+    },
+    reset_passwork_token_ttl: {
+      type: Date,
+    },
     phone: {
       type: String,
     },

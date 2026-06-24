@@ -1,4 +1,4 @@
-import ms from "ms";
+import ms, { StringValue } from "ms";
 import { env } from "../config/env";
 import ResendMail from "../utils/ResendMail";
 import Utils from "../utils/Utils";
@@ -6,25 +6,10 @@ import bcrypt from "bcrypt";
 import jwt, { SignOptions } from "jsonwebtoken";
 
 class AuthService {
-  static async generateVerificationTokenAndSendEmail(mail: { to: string }) {
-    const { verification_token, verification_token_ttl } =
-      this.generateVerificationToken();
-
-    const { error } = await ResendMail.sendVerificationToken({
-      token: verification_token,
-      to: mail.to,
-    });
-
-    return { verification_token, verification_token_ttl, error };
-  }
-
-  static generateVerificationToken() {
-    const verification_token = Utils.generateOTP(6);
-    const verification_token_ttl = new Date(
-      Date.now() + ms(env.EMAIL_VERIFICATION_TOKEN_TTL),
-    );
-
-    return { verification_token, verification_token_ttl };
+  static generateVerificationToken(ttl: StringValue) {
+    const token = Utils.generateOTP(6);
+    const token_ttl = new Date(Date.now() + ms(ttl));
+    return { token, token_ttl };
   }
 
   static hashPassword(password: string) {
@@ -43,7 +28,7 @@ class AuthService {
 
   static jwtVerify(token: string, secret: string) {
     return jwt.verify(token, env.JWT_SECRET);
-  };
+  }
 }
 
 export default AuthService;

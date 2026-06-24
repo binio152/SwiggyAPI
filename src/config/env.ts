@@ -11,6 +11,7 @@ const envSchema = z.object({
     .enum(["development", "production", "test"])
     .default("development"),
   EMAIL_VERIFICATION_TOKEN_TTL: z.custom<StringValue>(),
+  RESET_PASSWORD_TOKEN_TTL: z.custom<StringValue>(),
   RESEND_API_KEY: z.coerce.string(),
   JWT_SECRET: z.coerce.string().min(32),
   JWT_SECRET_TTL: z.string(),

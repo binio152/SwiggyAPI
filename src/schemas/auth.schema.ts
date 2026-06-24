@@ -45,6 +45,12 @@ export const signInSchema = z.object(
   },
 );
 
+export const resetPasswordSchema = z.object({
+  login: z
+    .string("Email or username is required")
+    .min(3, "Email  must be at least 3 charecters"),
+});
+
 export const verificationTokenSchema = z.object(
   {
     email: z.string("Email is required").email(),
@@ -66,6 +72,7 @@ export const resendVerificationTokenSchema = z.object(
 
 export type SignUpInput = z.infer<typeof signUpSchema>;
 export type SignInInput = z.infer<typeof signInSchema>;
+export type resetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type VerificationToken = z.infer<typeof verificationTokenSchema>;
 export type ResendVerificationToken = z.infer<
   typeof resendVerificationTokenSchema

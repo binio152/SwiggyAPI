@@ -2,6 +2,7 @@ import { Router } from "express";
 import Validate from "../middlewares/validate";
 import {
   resendVerificationTokenSchema,
+  resetPasswordSchema,
   signInSchema,
   signUpSchema,
   verificationTokenSchema,
@@ -46,6 +47,12 @@ class AuthRouter {
       Validate.request({ schema: resendVerificationTokenSchema, type: "body" }),
       Validate.jwt,
       AuthController.resendVerificationEmail,
+    );
+
+    this.router.patch(
+      "/reset/password",
+      Validate.request({ schema: resetPasswordSchema, type: "body" }),
+      AuthController.sendResetPasswordOTP,
     );
   }
 }

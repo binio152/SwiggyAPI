@@ -1,10 +1,9 @@
 import crypto from "crypto";
-import { env } from "../config/env";
-import ms from "ms";
+import ms, { StringValue } from "ms";
 
 class Utils {
-  static getStringTokenTTL() {
-    return ms(ms(env.EMAIL_VERIFICATION_TOKEN_TTL), { long: true });
+  static getStringTokenTTL(ttl: StringValue) {
+    return ms(ms(ttl), { long: true });
   }
 
   static generateOTP(length: number): string {
