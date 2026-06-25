@@ -4,7 +4,7 @@ import User from "../models/User";
 import ResendMail from "../utils/ResendMail";
 import AuthService from "../services/AuthServices";
 import { StringValue } from "ms";
-import { EmailTypes, JWTPurposes } from "../constants";
+import { EmailTypes, JwtAudience } from "../constants";
 import { env } from "../config/env";
 
 class AuthController {
@@ -55,10 +55,15 @@ class AuthController {
       });
 
       // JWT Creation
-      const token = AuthService.jwtSign({
-        userId: newUser._id,
-        purposes: [JWTPurposes.VERIFY_EMAIL],
-      });
+      const token = AuthService.jwtSign(
+        {
+          userId: newUser._id,
+        },
+        {
+          issuer: "swiggy-app",
+          audience: JwtAudience.VERIFY_EMAIL,
+        },
+      );
 
       return res.status(201).json({
         success: true,
@@ -95,11 +100,16 @@ class AuthController {
         return next(new AppError("Please verify your email first!", 403));
 
       // JWT Creation
-      const token = AuthService.jwtSign({
-        userId: user._id,
-        role: user.role,
-        purposes: [JWTPurposes.ACCESS],
-      });
+      const token = AuthService.jwtSign(
+        {
+          userId: user._id,
+          role: user.role,
+        },
+        {
+          issuer: "swiggy-app",
+          audience: JwtAudience.ACCESS,
+        },
+      );
 
       return res.status(200).json({
         success: true,
@@ -122,7 +132,7 @@ class AuthController {
 
       // Token Purpose Validation
       const accessToken = AuthService.getAcessToken(req);
-      if (!AuthService.jwtPurposeVerify(accessToken, JWTPurposes.VERIFY_EMAIL))
+      if (!AuthService.jwtPurposeVerify(accessToken, JwtAudience.VERIFY_EMAIL))
         next(new AppError("Invalid token purpose", 401));
 
       // Find user with provided email and check if token is not exprired
@@ -174,7 +184,7 @@ class AuthController {
 
       // Token Purpose Validation
       const accessToken = AuthService.getAcessToken(req);
-      if (!AuthService.jwtPurposeVerify(accessToken, JWTPurposes.VERIFY_EMAIL))
+      if (!AuthService.jwtPurposeVerify(accessToken, JwtAudience.VERIFY_EMAIL))
         next(new AppError("Invalid token purpose", 401));
 
       // Token Regeneration
@@ -323,7 +333,7 @@ class AuthController {
 
       // JWT Purpose Validation
       const accessToken = AuthService.getAcessToken(req);
-      if (!AuthService.jwtPurposeVerify(accessToken, JWTPurposes.ACCESS))
+      if (!AuthService.jwtPurposeVerify(accessToken, JwtAudience.ACCESS))
         next(new AppError("Invalid token purpose", 401));
 
       const user = await User.findById(userId);

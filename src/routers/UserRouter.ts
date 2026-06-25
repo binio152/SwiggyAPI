@@ -1,7 +1,7 @@
 import { Router } from "express";
 import UserController from "../controller/UserController";
 import Validate from "../middlewares/validate";
-import { getUserById, phoneUpdate } from "../schemas/user.schema";
+import { getUserById, phoneUpdate } from "../schemas";
 
 class UserRouter {
   public router;

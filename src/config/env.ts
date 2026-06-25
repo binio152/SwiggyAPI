@@ -14,7 +14,7 @@ const envSchema = z.object({
   RESET_PASSWORD_TOKEN_TTL: z.custom<StringValue>(),
   RESEND_API_KEY: z.coerce.string(),
   JWT_SECRET: z.coerce.string().min(32),
-  JWT_SECRET_TTL: z.string(),
+  JWT_SECRET_TTL: z.custom<StringValue>(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

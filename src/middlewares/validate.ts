@@ -52,6 +52,8 @@ class Validate {
       next(new AppError("Invalid Token", 401));
     }
   }
+
+  static banner() {}
 }
 
 export default Validate;

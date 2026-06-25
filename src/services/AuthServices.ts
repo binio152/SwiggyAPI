@@ -3,15 +3,13 @@ import { env } from "../config/env";
 import Utils from "../utils/Utils";
 import bcrypt from "bcrypt";
 import jwt, { SignOptions } from "jsonwebtoken";
-import { NextFunction, Request } from "express";
+import { Request } from "express";
 import User from "../models/User";
 import { AppError } from "../utils/AppError";
 
 class AuthService {
   static getAcessToken(req: Request) {
-    return req.headers.authorization
-      ? req.headers.authorization?.split(" ")[1]
-      : "";
+    return req.headers.authorization?.split(" ")[1]!;
   }
 
   static generateVerificationToken(ttl: StringValue) {
@@ -28,9 +26,10 @@ class AuthService {
     return bcrypt.compare(password, hashPassword);
   }
 
-  static jwtSign(payload: string | object) {
+  static jwtSign(payload: string | object, options: SignOptions) {
     return jwt.sign(payload, env.JWT_SECRET, {
-      expiresIn: env.JWT_SECRET_TTL as SignOptions["expiresIn"],
+      expiresIn: env.JWT_SECRET_TTL,
+      ...options,
     });
   }
 
@@ -40,7 +39,7 @@ class AuthService {
 
   static jwtPurposeVerify(token: string, purpose: TokenPurpose) {
     const jwt = this.jwtVerify(token, env.JWT_SECRET) as JwtPayloadBase;
-    const purposes = jwt.purposes;
+    const purposes = jwt.aud!;
 
     return purposes.includes(purpose) ?? false;
   }

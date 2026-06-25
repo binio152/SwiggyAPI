@@ -1,3 +1,5 @@
+import jwt from "jsonwebtoken";
+
 declare global {
   type TokenPurpose =
     | "access"
@@ -6,9 +8,15 @@ declare global {
     | "change-password";
 
   interface JwtPayloadBase {
-    userId?: string;
-    role?: String;
-    purposes: TokenPurpose[];
+    userId: string;
+    role: "admin" | "user" | "moderator";
+    email?: string;
+    iss: string;
+    aud: string;
+  }
+
+  interface SignTokenOptions extends Omit<jwt.SignOptions, "algorithm"> {
+    expiresIn: string | number;
   }
 }
 

@@ -5,6 +5,7 @@ import morgan from "morgan";
 import { AppError } from "./utils/AppError";
 import AuthRouter from "./routers/AuthRouter";
 import UserRouter from "./routers/UserRouter";
+import path from "node:path";
 
 class Server {
   public app = express();
@@ -22,6 +23,10 @@ class Server {
     this.app.use(morgan("dev"));
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(
+      "/uploads",
+      express.static(path.join(process.cwd(), "uploads")),
+    );
   }
 
   async connectMongoDB(dbURI: string) {
