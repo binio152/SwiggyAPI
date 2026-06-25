@@ -3,7 +3,9 @@ import { env } from "../config/env";
 import Utils from "../utils/Utils";
 import bcrypt from "bcrypt";
 import jwt, { SignOptions } from "jsonwebtoken";
-import { Request } from "express";
+import { NextFunction, Request } from "express";
+import User from "../models/User";
+import { AppError } from "../utils/AppError";
 
 class AuthService {
   static getAcessToken(req: Request) {
@@ -41,6 +43,19 @@ class AuthService {
     const purposes = jwt.purposes;
 
     return purposes.includes(purpose) ?? false;
+  }
+
+  static async getCurrentUser(req: Request) {
+    const userId = req.user?.userId;
+    if (!userId) throw new AppError("Unauthorized", 401);
+
+    return this.getUserById(userId);
+  }
+
+  static async getUserById(userId: string) {
+    const user = await User.findById(userId).select("-password");
+    if (!user) throw new AppError("User does not exist", 404);
+    return user;
   }
 }
 

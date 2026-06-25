@@ -1,14 +1,5 @@
 import { z } from "zod";
-
-export enum UserRole {
-  USER = "user",
-  ADMIN = "admin",
-}
-
-export enum Status {
-  ACTIVE = "active",
-  INACTIVE = "inactive",
-}
+import { Status, UserRole } from "../constants";
 
 export const signUpSchema = z.object(
   {

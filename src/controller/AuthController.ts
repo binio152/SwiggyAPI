@@ -6,7 +6,6 @@ import AuthService from "../services/AuthServices";
 import { StringValue } from "ms";
 import { EmailTypes, JWTPurposes } from "../constants";
 import { env } from "../config/env";
-import { JwtPayload } from "jsonwebtoken";
 
 class AuthController {
   static async signUp(req: Request, res: Response, next: NextFunction) {

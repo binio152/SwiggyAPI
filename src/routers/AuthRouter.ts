@@ -20,8 +20,6 @@ class AuthRouter {
     this.patchRoutes();
   }
 
-  getRoutes() {}
-
   postRoutes() {
     this.router.post(
       "/signup",
@@ -48,7 +46,7 @@ class AuthRouter {
       AuthController.resendVerificationEmail,
     );
 
-     this.router.post(
+    this.router.post(
       "/change-password",
       Validate.request({ schema: changePasswordSchema, type: "body" }),
       Validate.jwt,
@@ -69,8 +67,6 @@ class AuthRouter {
       Validate.request({ schema: resetPasswordSchema, type: "body" }),
       AuthController.resetPassword,
     );
-
-   
   }
 }
 
