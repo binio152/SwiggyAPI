@@ -3,7 +3,6 @@ import { AppError } from "../utils/AppError";
 import User from "../models/User";
 import ResendMail from "../utils/ResendMail";
 import AuthService from "../services/AuthServices";
-import { StringValue } from "ms";
 import { EmailTypes, JwtAudience } from "../constants";
 import { env } from "../config/env";
 
@@ -243,7 +242,7 @@ class AuthController {
         token: reset_password_token,
         token_ttl: reset_password_token_ttl,
       } = AuthService.generateVerificationToken(
-        env.RESET_PASSWORD_TOKEN_TTL as StringValue,
+        env.RESET_PASSWORD_TOKEN_TTL,
       );
 
       // Finding user with provided username / email
@@ -261,7 +260,7 @@ class AuthController {
       // Send Email
       const { error } = await ResendMail.sendVerificationToken({
         token: reset_password_token,
-        ttl: env.RESET_PASSWORD_TOKEN_TTL as StringValue,
+        ttl: env.RESET_PASSWORD_TOKEN_TTL,
         to: user.email,
         type: EmailTypes.RESET_PASSWORD,
       });

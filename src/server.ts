@@ -5,7 +5,10 @@ import morgan from "morgan";
 import { AppError } from "./utils/AppError";
 import AuthRouter from "./routers/AuthRouter";
 import UserRouter from "./routers/UserRouter";
-import path from "node:path";
+import path from "path";
+import BannerRouter from "./routers/BannerRouter";
+import multer from "multer";
+import { env } from "./config/env";
 
 class Server {
   public app = express();
@@ -18,7 +21,7 @@ class Server {
   }
 
   setConfigs() {
-    this.connectMongoDB(process.env.DB_URI || "mongodb://127.0.0.1:27017/test");
+    this.connectMongoDB(env.DB_URI || "mongodb://127.0.0.1:27017/test");
     this.app.use(cors());
     this.app.use(morgan("dev"));
     this.app.use(express.json());
@@ -41,6 +44,7 @@ class Server {
   setRoutes() {
     this.app.use("/api/users", UserRouter);
     this.app.use("/api/auth", AuthRouter);
+    this.app.use("/api/admin", BannerRouter);
   }
 
   notFoundHandler() {
@@ -58,6 +62,12 @@ class Server {
           return res
             .status(err.statusCode)
             .json({ success: false, message: err.message });
+        }
+
+        if (err instanceof multer.MulterError) {
+          return res
+            .status(500)
+            .json({ success: false, message: "Can not upload image" });
         }
 
         return res

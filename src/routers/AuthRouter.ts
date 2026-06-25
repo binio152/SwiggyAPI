@@ -8,7 +8,7 @@ import {
   signInSchema,
   signUpSchema,
   verificationTokenSchema,
-} from "../schemas";
+} from "../schemas/index";
 import AuthController from "../controller/AuthController";
 
 class AuthRouter {

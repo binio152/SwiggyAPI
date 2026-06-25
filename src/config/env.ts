@@ -5,6 +5,7 @@ import { StringValue } from "ms";
 loadEnv();
 
 const envSchema = z.object({
+  DOMAIN: z.coerce.string().default("http://localhost:3000"),
   PORT: z.coerce.number().default(3000),
   DB_URI: z.coerce.string().min(1),
   NODE_ENV: z

@@ -6,7 +6,7 @@ import AuthService from "../services/AuthServices";
 
 interface ValidateProps {
   schema: ZodTypeAny;
-  type: "body" | "query" | "params";
+  type: "body" | "query" | "params" | "file";
 }
 
 class Validate {
@@ -33,7 +33,7 @@ class Validate {
     };
   }
 
-  static jwt(req: Request, res: Response, next: NextFunction) {
+  static jwt(req: Request, _res: Response, next: NextFunction) {
     try {
       const token = AuthService.getAcessToken(req);
       if (!token) return next(new AppError("Unauthorized", 401));
@@ -50,6 +50,15 @@ class Validate {
       next();
     } catch {
       next(new AppError("Invalid Token", 401));
+    }
+  }
+
+  static async isAdmin(req: Request, _res: Response, next: NextFunction) {
+    const role = await AuthService.getCurrentUserRole(req);
+    if (role === "admin") {
+      next();
+    } else {
+      next(new AppError("Unauthorized", 403));
     }
   }
 

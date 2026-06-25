@@ -51,6 +51,11 @@ class AuthService {
     return this.getUserById(userId);
   }
 
+  static async getCurrentUserRole(req: Request) {
+    const user = await this.getCurrentUser(req);
+    return user.role;
+  }
+
   static async getUserById(userId: string) {
     const user = await User.findById(userId).select("-password");
     if (!user) throw new AppError("User does not exist", 404);
