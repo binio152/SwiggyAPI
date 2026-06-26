@@ -11,6 +11,7 @@ import multer from "multer";
 import { env } from "./config/env";
 import CityRouter from "./routers/CityRouter";
 import RestaurantRouter from "./routers/RestaurantRouter";
+import CuisineRouter from "./routers/CuisineRouter";
 
 class Server {
   public app = express();
@@ -49,6 +50,7 @@ class Server {
     this.app.use("/api/images", ImageRouter);
     this.app.use("/api/cities", CityRouter);
     this.app.use("/api/restaurants", RestaurantRouter);
+    this.app.use("/api/cuisines", CuisineRouter);
   }
 
   notFoundHandler() {
