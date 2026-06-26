@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../utils/AppError";
-import Banner from "../models/BannerSchema";
+import Banner from "../models/Banner";
 import { PostImageBody } from "../schemas";
 import { env } from "../config/env";
 

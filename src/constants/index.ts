@@ -14,7 +14,20 @@ export enum UserRole {
   ADMIN = "admin",
 }
 
-export enum Status {
+export enum UserStatus {
   ACTIVE = "active",
   INACTIVE = "inactive",
+}
+
+export enum RestaurantStatus {
+  OPENNING = "openning",
+  CLOSED = "closed",
+}
+
+export enum OrderStatus {
+  PENDING = "pending",
+  PREPARING = "preparing",
+  DELIVERING = "delivering",
+  COMPLETED = "completed",
+  CANCELLED = "cancelled",
 }

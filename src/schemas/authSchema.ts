@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Status, UserRole } from "../constants";
+import { UserStatus, UserRole } from "../constants";
 
 export const signUpSchema = z.object(
   {
@@ -15,7 +15,7 @@ export const signUpSchema = z.object(
       .min(6, "Password must be at least 6 charecters"),
     phone: z.string().optional(),
     role: z.enum(UserRole).default(UserRole.USER),
-    status: z.enum(Status).default(Status.INACTIVE),
+    status: z.enum(UserStatus).default(UserStatus.INACTIVE),
   },
   {
     message: "All fields ( name, username, email, password ) are requried.",

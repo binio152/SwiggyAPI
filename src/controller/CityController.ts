@@ -10,7 +10,11 @@ class CityController {
       const city = await City.findOne({ name });
       if (city) return next(new AppError("This city name is already exists"));
 
-      const newCity = await City.create({ name, lat, lng });
+      const newCity = await City.create({
+        name,
+        location: { type: "Point", coordinates: [lat, lng] },
+      });
+
       res.status(201).json({
         success: true,
         message: "Appended city successfully",
@@ -26,13 +30,11 @@ class CityController {
     try {
       const cities = await City.find({});
 
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: "Fetched all cities successfully",
-          cities,
-        });
+      res.status(200).json({
+        success: true,
+        message: "Fetched all cities successfully",
+        cities,
+      });
     } catch (err) {
       console.log("Error occurred while appending city");
       next(err);

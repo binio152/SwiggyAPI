@@ -27,7 +27,9 @@ class CityRouter {
     );
   }
 
-  patchRoutes() {}
+  patchRoutes() {
+    
+  }
 }
 
 export default new CityRouter().router;
