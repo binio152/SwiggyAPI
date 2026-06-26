@@ -12,7 +12,7 @@ class CityController {
 
       const newCity = await City.create({
         name,
-        location: { type: "Point", coordinates: [lat, lng] },
+        location: { type: "Point", coordinates: [lng, lat] },
       });
 
       res.status(201).json({
