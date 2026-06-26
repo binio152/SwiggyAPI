@@ -32,7 +32,7 @@ class RestaurantController {
         description,
         cuisines,
         address,
-        location: { type: "Point", coordinates: [lat, lng] },
+        location: { type: "Point", coordinates: [lng, lat] },
         phone,
         cover,
         opened_time,
@@ -51,6 +51,31 @@ class RestaurantController {
       });
     } catch (err) {
       console.log("Error occurred while appending restaurant");
+      next(err);
+    }
+  }
+
+  static async getRestaurantById(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { id } = req.params;
+
+      const restaurant = await Restaurant.findById(id)
+        .populate("user_id", "name email -_id")
+        .populate("city_id", "name -_id")
+        .populate("cuisines")
+        .populate("cover", "image_url  -_id");
+
+      res.status(200).json({
+        success: true,
+        message: "Fetched restaurant successfully",
+        restaurant,
+      });
+    } catch (err) {
+      console.log("Error occurred while fetching restaurant");
       next(err);
     }
   }

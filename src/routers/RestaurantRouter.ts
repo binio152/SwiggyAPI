@@ -13,7 +13,9 @@ class RestaurantRouter {
     this.patchRoutes();
   }
 
-  getRoutes() {}
+  getRoutes() {
+    this.router.get("/:id", RestaurantController.getRestaurantById);
+  }
 
   postRoutes() {
     this.router.post(

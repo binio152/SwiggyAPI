@@ -7,7 +7,7 @@ const restaurantSchema = new Schema(
     city_id: { type: Schema.Types.ObjectId, ref: "City", required: true },
     name: { type: String, trim: true, required: true },
     description: { type: String },
-    cuisines: { type: [Schema.Types.ObjectId], ref: "Cuisine", required: true },
+    cuisines: [{ type: Schema.Types.ObjectId, ref: "Cuisine", required: true }],
     address: { type: String, required: true },
     location: {
       type: {
@@ -17,7 +17,7 @@ const restaurantSchema = new Schema(
           return this.location && this.location.coordinates;
         },
       },
-      coordinates: { type: [Number] }, // [lat, lng]
+      coordinates: { type: [Number] }, // [lng, lat]
     },
     phone: { type: String },
     cover: { type: Schema.Types.ObjectId, ref: "Image" },
