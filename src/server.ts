@@ -6,10 +6,11 @@ import { AppError } from "./utils/AppError";
 import AuthRouter from "./routers/AuthRouter";
 import UserRouter from "./routers/UserRouter";
 import path from "path";
-import BannerRouter from "./routers/BannerRouter";
+import ImageRouter from "./routers/ImageRouter";
 import multer from "multer";
 import { env } from "./config/env";
 import CityRouter from "./routers/CityRouter";
+import RestaurantRouter from "./routers/RestaurantRouter";
 
 class Server {
   public app = express();
@@ -45,8 +46,9 @@ class Server {
   setRoutes() {
     this.app.use("/api/users", UserRouter);
     this.app.use("/api/auth", AuthRouter);
-    this.app.use("/api/admin", BannerRouter);
+    this.app.use("/api/images", ImageRouter);
     this.app.use("/api/cities", CityRouter);
+    this.app.use("/api/restaurants", RestaurantRouter);
   }
 
   notFoundHandler() {
@@ -69,7 +71,7 @@ class Server {
         if (err instanceof multer.MulterError) {
           return res
             .status(500)
-            .json({ success: false, message: "Can not upload image" });
+            .json({ success: false, message: "Can not upload image", err });
         }
 
         return res
