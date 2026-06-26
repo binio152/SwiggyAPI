@@ -2,7 +2,7 @@ import { z } from "zod";
 import { config as loadEnv } from "dotenv";
 import { StringValue } from "ms";
 
-loadEnv();
+loadEnv({ override: true });
 
 const envSchema = z.object({
   DOMAIN: z.coerce.string().default("http://localhost:3000"),
