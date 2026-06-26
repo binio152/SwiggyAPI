@@ -9,6 +9,7 @@ import path from "path";
 import BannerRouter from "./routers/BannerRouter";
 import multer from "multer";
 import { env } from "./config/env";
+import CityRouter from "./routers/CityRouter";
 
 class Server {
   public app = express();
@@ -45,6 +46,7 @@ class Server {
     this.app.use("/api/users", UserRouter);
     this.app.use("/api/auth", AuthRouter);
     this.app.use("/api/admin", BannerRouter);
+    this.app.use("/api/cities", CityRouter);
   }
 
   notFoundHandler() {
