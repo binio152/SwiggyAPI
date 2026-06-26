@@ -31,3 +31,8 @@ export enum OrderStatus {
   COMPLETED = "completed",
   CANCELLED = "cancelled",
 }
+
+export enum PaymentMethod {
+  COD = "cod",
+  BANKING = "banking",
+}

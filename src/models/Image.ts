@@ -1,14 +1,13 @@
 import { Schema, model } from "mongoose";
 
-const bannerSchema = new Schema(
+const imageSchema = new Schema(
   {
-    restaurant_id: { type: Schema.Types.ObjectId, ref: "Restaurant" },
     image_url: { type: String, required: true, trim: true },
     status: { type: Boolean, default: true },
   },
   { timestamps: true },
 );
 
-const Banner = model("Banner", bannerSchema);
+const Image = model("Image", imageSchema);
 
-export default Banner;
+export default Image;

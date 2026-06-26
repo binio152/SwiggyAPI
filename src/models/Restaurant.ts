@@ -7,7 +7,8 @@ const restaurantSchema = new Schema(
     city_id: { type: Schema.Types.ObjectId, ref: "City", required: true },
     name: { type: String, trim: true, required: true },
     description: { type: String },
-    cusines: { type: [Schema.Types.ObjectId], ref: "Cuisine", required: true },
+    cuisines: { type: [Schema.Types.ObjectId], ref: "Cuisine", required: true },
+    address: { type: String, required: true },
     location: {
       type: {
         type: String,
@@ -16,21 +17,21 @@ const restaurantSchema = new Schema(
           return this.location && this.location.coordinates;
         },
       },
-      coordinates: { type: [Number] },
+      coordinates: { type: [Number] }, // [lat, lng]
     },
-    address: { type: String, required: true },
     phone: { type: String },
-    cover: { type: String },
-    opened_time: { type: Date },
-    closed_time: { type: Date },
-    delivery_time: { type: Date },
+    cover: { type: Schema.Types.ObjectId, ref: "Image" },
+    opened_time: { type: String, required: true },
+    closed_time: { type: String, required: true },
+    delivery_time: { type: Number, required: true },
     rating: { type: Number, default: 0 },
-    ratingCOunt: { type: Number, default: 0 },
+    rating_count: { type: Number, default: 0 },
     status: {
       type: String,
       enum: Object.values(RestaurantStatus),
       default: RestaurantStatus.OPENNING,
     },
+    is_active: { type: Boolean, default: true },
   },
   {
     timestamps: true,

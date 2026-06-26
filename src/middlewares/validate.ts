@@ -62,7 +62,7 @@ class Validate {
     }
   }
 
-  static banner() {}
+  
 }
 
 export default Validate;
