@@ -4,7 +4,7 @@ const categorySchema = new Schema(
   {
     restaurant_id: {
       type: Schema.Types.ObjectId,
-      ref: "Restaurant",
+      ref: "Item",
       required: true,
     },
     name: { type: String, required: true, trim: true },

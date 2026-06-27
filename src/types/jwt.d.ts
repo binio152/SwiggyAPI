@@ -3,9 +3,9 @@ import jwt from "jsonwebtoken";
 declare global {
   type TokenPurpose =
     | "access"
-    | "verify-email"
+    | "verify_email"
     | "reset_password"
-    | "change-password";
+    | "change_password";
 
   interface JwtPayloadBase {
     userId: string;

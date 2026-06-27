@@ -5,9 +5,16 @@ export const EmailTypes = {
 
 export const JwtAudience = {
   ACCESS: "access",
-  VERIFY_EMAIL: "verify-email",
+  VERIFY_EMAIL: "verify_email",
   RESET_PASSWORD: "reset_password",
 } as const;
+
+export enum FoodCategory {
+  MAIN_COURSE = "main_course",
+  DESSERTS = "desserts",
+  BEVERAGES = "beverages",
+  COMBO = "combo",
+}
 
 export enum UserRole {
   USER = "user",
@@ -21,7 +28,7 @@ export enum UserStatus {
 }
 
 export enum RestaurantStatus {
-  OPENNING = "openning",
+  OPENING = "opening",
   CLOSED = "closed",
 }
 

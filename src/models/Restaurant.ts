@@ -29,7 +29,7 @@ const restaurantSchema = new Schema(
     status: {
       type: String,
       enum: Object.values(RestaurantStatus),
-      default: RestaurantStatus.OPENNING,
+      default: RestaurantStatus.OPENING,
     },
     is_active: { type: Boolean, default: true },
   },

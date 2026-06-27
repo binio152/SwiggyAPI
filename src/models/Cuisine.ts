@@ -1,5 +1,4 @@
 import { Schema, model } from "mongoose";
-import slugify from "slugify";
 
 const cuisineSchema = new Schema(
   {

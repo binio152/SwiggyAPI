@@ -48,7 +48,7 @@ export const restaurantSchema = z.object({
   rating_count: z.coerce.number().optional().default(0),
   status: z
     .enum(Object.values(RestaurantStatus))
-    .default(RestaurantStatus.OPENNING),
+    .default(RestaurantStatus.OPENING),
   is_active: z.boolean().default(true),
 });
 
@@ -60,6 +60,13 @@ export const restaurantParams = z.object({
   id: z.string("Restaurant id is required"),
 });
 
+export const restaurantQuery = z.object({
+  lat: z.coerce.string(),
+  lng: z.coerce.string(),
+  maxDistance: z.coerce.string().optional(),
+});
+
 export type Restaurant = z.infer<typeof restaurantSchema>;
 export type RestaurantRating = z.infer<typeof ratingSchema>;
 export type RestaurantParams = z.infer<typeof restaurantParams>;
+export type RestaurantQuery = z.infer<typeof restaurantQuery>;

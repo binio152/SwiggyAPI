@@ -4,6 +4,7 @@ import {
   postImageSchema,
   ratingSchema,
   restaurantParams,
+  restaurantQuery,
   restaurantSchema,
 } from "../schemas";
 import RestaurantController from "../controller/RestaurantController";
@@ -20,7 +21,16 @@ class RestaurantRouter {
   }
 
   getRoutes() {
-    this.router.get("/:id", RestaurantController.getRestaurantById);
+    this.router.get(
+      "/nearest-restaurant",
+      Validate.request({ schema: restaurantQuery, type: "query" }),
+      RestaurantController.getNearByRestaurant,
+    );
+    this.router.get(
+      "/:id",
+      Validate.request({ schema: restaurantParams, type: "params" }),
+      RestaurantController.getRestaurantById,
+    );
   }
 
   postRoutes() {

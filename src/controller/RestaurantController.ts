@@ -6,6 +6,8 @@ import Image from "../models/Image";
 import { AppError } from "../utils/AppError";
 import Cuisine from "../models/Cuisine";
 import Utils from "../utils/Utils";
+import { RestaurantStatus } from "../constants";
+import { success } from "zod";
 
 class RestaurantController {
   static async addRestaurant(req: Request, res: Response, next: NextFunction) {
@@ -16,6 +18,7 @@ class RestaurantController {
         name,
         description,
         cuisines,
+
         address,
         lat,
         lng,
@@ -51,7 +54,7 @@ class RestaurantController {
       const cuisineData = await Cuisine.find({
         name: { $in: cuisines },
       }).select("_id");
-      
+
       const cuisineList = cuisineData.map((el) => el._id);
 
       // Create Restaurnt
@@ -96,8 +99,8 @@ class RestaurantController {
       const restaurant = await Restaurant.findById(id)
         .populate("user_id", "name email -_id")
         .populate("city_id", "name -_id")
-        .populate("cuisines")
-        .populate("cover", "image_url  -_id");
+        .populate("image_id", "image_url  -_id")
+        .populate("cuisines");
 
       res.status(200).json({
         success: true,
@@ -140,6 +143,58 @@ class RestaurantController {
       });
     } catch (err) {
       console.log("Error occurred while updating restaurant");
+      next(err);
+    }
+  }
+
+  static async getNearByRestaurant(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { lat, lng, maxDistance = 5000 } = req.query;
+
+      const restaurants = await Restaurant.find({
+        location: {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: [lng, lat],
+            },
+            $maxDistance: maxDistance,
+          },
+        },
+      }).populate("cuisines");
+
+      res.status(200).json({
+        success: true,
+        message: `Found ${restaurants.length} restaurants near by you`,
+        data: restaurants,
+      });
+    } catch (err) {
+      console.log("Error occurred while fetching around restaurant");
+      next(err);
+    }
+  }
+
+  static async getOpeningRestaurant(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const restaurants = await Restaurant.find({
+        status: RestaurantStatus.OPENING,
+      });
+
+      res.json({
+        success: true,
+        message: "Fetched opening restaurants successfully",
+        restaurants,
+      });
+    } catch (err) {
+      console.log("Error occurred while fetching around restaurant");
       next(err);
     }
   }
