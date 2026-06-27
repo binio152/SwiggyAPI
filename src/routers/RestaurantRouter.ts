@@ -1,7 +1,13 @@
 import { Router } from "express";
 import Validate from "../middlewares/validate";
-import { restaurantSchema } from "../schemas";
+import {
+  postImageSchema,
+  ratingSchema,
+  restaurantParams,
+  restaurantSchema,
+} from "../schemas";
 import RestaurantController from "../controller/RestaurantController";
+import { upload } from "../utils/MulterService";
 
 class RestaurantRouter {
   public router;
@@ -22,12 +28,22 @@ class RestaurantRouter {
       "/",
       Validate.jwt,
       Validate.isAdmin,
+      upload.single("image_url"),
       Validate.request({ schema: restaurantSchema, type: "body" }),
+      Validate.request({ schema: postImageSchema, type: "file" }),
       RestaurantController.addRestaurant,
     );
   }
 
-  patchRoutes() {}
+  patchRoutes() {
+    this.router.patch(
+      "/rating/:id",
+      Validate.jwt,
+      Validate.request({ schema: ratingSchema, type: "body" }),
+      Validate.request({ schema: restaurantParams, type: "params" }),
+      RestaurantController.ratingRestaurant,
+    );
+  }
 }
 
 export default new RestaurantRouter().router;

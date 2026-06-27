@@ -5,6 +5,7 @@ const restaurantSchema = new Schema(
   {
     user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
     city_id: { type: Schema.Types.ObjectId, ref: "City", required: true },
+    image_id: { type: Schema.Types.ObjectId, ref: "Image", required: true },
     name: { type: String, trim: true, required: true },
     description: { type: String },
     cuisines: [{ type: Schema.Types.ObjectId, ref: "Cuisine", required: true }],
@@ -20,7 +21,6 @@ const restaurantSchema = new Schema(
       coordinates: { type: [Number] }, // [lng, lat]
     },
     phone: { type: String },
-    cover: { type: Schema.Types.ObjectId, ref: "Image" },
     opened_time: { type: String, required: true },
     closed_time: { type: String, required: true },
     delivery_time: { type: Number, required: true },
