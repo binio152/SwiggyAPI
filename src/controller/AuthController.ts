@@ -3,7 +3,7 @@ import { AppError } from "../utils/AppError";
 import User from "../models/User";
 import ResendMail from "../utils/ResendMail";
 import AuthService from "../services/AuthServices";
-import { EmailTypes, JwtAudience } from "../constants";
+import { EmailTypes, JwtAudience, UserRole } from "../constants";
 import { env } from "../config/env";
 
 class AuthController {
@@ -50,6 +50,79 @@ class AuthController {
         password: hashedPassword,
         phone,
         role,
+        status,
+      });
+
+      // JWT Creation
+      const token = AuthService.jwtSign(
+        {
+          userId: newUser._id,
+        },
+        {
+          issuer: "swiggy-app",
+          audience: JwtAudience.VERIFY_EMAIL,
+        },
+      );
+
+      return res.status(201).json({
+        success: true,
+        message: "Created account successfully",
+        user: newUser, // DEV ONLY
+        token,
+      });
+    } catch (err) {
+      console.log("Error occurred while signing up");
+      next(err);
+    }
+  }
+
+  static async signUpAsRestaurantOwner(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { name, username, email, password, phone, role, status } = req.body;
+
+      // Duplication Validatation
+      const user = await User.findOne(
+        { $or: [{ email }, { username }] },
+        { email: 1, username: 1 },
+      );
+
+      if (user) {
+        if (user.email === email)
+          return next(new AppError("This email already exists.", 409));
+
+        if (user.username === username)
+          return next(new AppError("This username already exists.", 409));
+      }
+
+      // Password Hashing
+      const hashedPassword = await AuthService.hashPassword(password);
+
+      // Generate OTP Send Email Verification
+      const { token: verification_token, token_ttl: verification_token_ttl } =
+        AuthService.generateVerificationToken(env.EMAIL_VERIFICATION_TOKEN_TTL);
+
+      const { error } = await ResendMail.sendVerificationToken({
+        token: verification_token,
+        ttl: env.EMAIL_VERIFICATION_TOKEN_TTL,
+        to: email,
+        type: EmailTypes.VERIFICATION,
+      });
+      if (error)
+        return res.status(400).json({ success: false, message: error });
+
+      const newUser = await User.create({
+        name,
+        username,
+        email,
+        verification_token,
+        verification_token_ttl,
+        password: hashedPassword,
+        phone,
+        role: UserRole.ADMIN,
         status,
       });
 
@@ -241,9 +314,7 @@ class AuthController {
       const {
         token: reset_password_token,
         token_ttl: reset_password_token_ttl,
-      } = AuthService.generateVerificationToken(
-        env.RESET_PASSWORD_TOKEN_TTL,
-      );
+      } = AuthService.generateVerificationToken(env.RESET_PASSWORD_TOKEN_TTL);
 
       // Finding user with provided username / email
       const user = await User.findOneAndUpdate(

@@ -18,6 +18,8 @@ class CuisineController {
       next(err);
     }
   }
+
+  
 }
 
 export default CuisineController;

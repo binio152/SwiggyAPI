@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import slugify from "slugify";
 
 const cuisineSchema = new Schema(
   {
@@ -8,6 +9,7 @@ const cuisineSchema = new Schema(
   },
   { timestamps: true },
 );
+
 
 const Cuisine = model("Cuisine", cuisineSchema);
 

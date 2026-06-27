@@ -3,8 +3,6 @@ import Server from "./server";
 
 const server = new Server().app;
 
-console.log(env); //DEV ONLY
-
 server.listen(env.PORT, () => {
   console.log(`Server is running on http://localhost:${env.PORT}`);
 });

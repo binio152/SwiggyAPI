@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import ms, { StringValue } from "ms";
+import slugify from "slugify";
 
 class Utils {
   static getStringTokenTTL(ttl: StringValue) {
@@ -17,6 +18,15 @@ class Utils {
     }
 
     return otp;
+  }
+
+  static createSlug(name: string) {
+    return slugify(name, {
+      lower: true,
+      strict: true,
+      locale: "vi",
+      trim: true,
+    });
   }
 }
 

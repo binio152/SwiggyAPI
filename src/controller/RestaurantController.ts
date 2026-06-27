@@ -4,12 +4,14 @@ import { PostImageBody } from "../schemas";
 import { env } from "../config/env";
 import Image from "../models/Image";
 import { AppError } from "../utils/AppError";
+import Cuisine from "../models/Cuisine";
+import Utils from "../utils/Utils";
 
 class RestaurantController {
   static async addRestaurant(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.userId;
-      const {
+      let {
         city_id,
         name,
         description,
@@ -27,17 +29,39 @@ class RestaurantController {
         is_active,
       } = req.body;
 
+      // Append Image
       const { filename } = req.file as PostImageBody;
       const image_url = `${env.DOMAIN}/uploads/${filename}`;
       const image = await new Image({ image_url }).save();
 
+      //Append Cuisines If Not Exists
+      const operations = cuisines.map((name: string) => ({
+        updateOne: {
+          filter: { name: name },
+          update: {
+            $setOnInsert: { name: name, slug: Utils.createSlug(name) },
+          },
+          upsert: true,
+        },
+      }));
+
+      await Cuisine.bulkWrite(operations, { ordered: false });
+
+      // Fectch Cuisine Data and Get Id List
+      const cuisineData = await Cuisine.find({
+        name: { $in: cuisines },
+      }).select("_id");
+      
+      const cuisineList = cuisineData.map((el) => el._id);
+
+      // Create Restaurnt
       const restaurant = await Restaurant.create({
         user_id: userId,
-        city_id,
         image_id: image._id,
+        city_id,
         name,
         description,
-        cuisines,
+        cuisines: cuisineList,
         address,
         location: { type: "Point", coordinates: [lng, lat] },
         phone,

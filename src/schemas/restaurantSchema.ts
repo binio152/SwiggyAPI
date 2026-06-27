@@ -9,14 +9,34 @@ export const restaurantSchema = z.object({
     .string("Restaurant name is required")
     .min(3, "Restaurant name must be at least 3 characters"),
   description: z.string().optional(),
-  cuisines: z.array(z.string()).min(1, "Restaurant cuisine is required"),
+  cuisines: z.preprocess(
+    (value) => {
+      if (!value) return [];
+      if (typeof value === "string" && value.startsWith("[")) {
+        try {
+          return JSON.parse(value);
+        } catch {
+          return [];
+        }
+      }
+
+      if (typeof value === "string" && value.includes(",")) {
+        return value.split(",").map((item) => item.trim());
+      }
+      return Array.isArray(value) ? value : [value];
+    },
+    z.array(z.string()).min(1, "Restaurant cuisine is required"),
+  ),
   address: z.string("Restaurant address is required"),
   lat: z.coerce.number().optional(),
   lng: z.coerce.number().optional(),
   phone: z.string().optional(),
   opened_time: z
     .string()
-    .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format (HH:MM)"),
+    .regex(
+      /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+      "Invalueid time format (HH:MM)",
+    ),
   closed_time: z
     .string()
     .regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, "Invalid time format (HH:MM)"),
