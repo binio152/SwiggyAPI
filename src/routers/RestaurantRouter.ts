@@ -3,7 +3,8 @@ import Validate from "../middlewares/validate";
 import {
   postImageSchema,
   ratingSchema,
-  restaurantParams,
+  restaurantFilterQuery,
+  restaurantIdParams,
   restaurantQuery,
   restaurantSchema,
 } from "../schemas";
@@ -22,13 +23,26 @@ class RestaurantRouter {
 
   getRoutes() {
     this.router.get(
-      "/nearest-restaurant",
+      "/nearest-restaurants",
       Validate.request({ schema: restaurantQuery, type: "query" }),
       RestaurantController.getNearByRestaurant,
     );
+    
+    this.router.get(
+      "/opening-restaurants",
+      Validate.request({ schema: restaurantQuery, type: "query" }),
+      RestaurantController.getOpeningRestaurants,
+    );
+
+    this.router.get(
+      "/filtered-restaurants",
+      Validate.request({ schema: restaurantFilterQuery, type: "query" }),
+      RestaurantController.filterRestaurant,
+    );
+
     this.router.get(
       "/:id",
-      Validate.request({ schema: restaurantParams, type: "params" }),
+      Validate.request({ schema: restaurantIdParams, type: "params" }),
       RestaurantController.getRestaurantById,
     );
   }
@@ -50,7 +64,7 @@ class RestaurantRouter {
       "/rating/:id",
       Validate.jwt,
       Validate.request({ schema: ratingSchema, type: "body" }),
-      Validate.request({ schema: restaurantParams, type: "params" }),
+      Validate.request({ schema: restaurantIdParams, type: "params" }),
       RestaurantController.ratingRestaurant,
     );
   }

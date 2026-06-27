@@ -56,7 +56,7 @@ export const ratingSchema = z.object({
   rating: z.coerce.number(),
 });
 
-export const restaurantParams = z.object({
+export const restaurantIdParams = z.object({
   id: z.string("Restaurant id is required"),
 });
 
@@ -66,7 +66,12 @@ export const restaurantQuery = z.object({
   maxDistance: z.coerce.string().optional(),
 });
 
+export const restaurantFilterQuery = z.object({
+  filter: z.coerce.string().min(1, "Restaurant cuisine is required"),
+});
+
 export type Restaurant = z.infer<typeof restaurantSchema>;
 export type RestaurantRating = z.infer<typeof ratingSchema>;
-export type RestaurantParams = z.infer<typeof restaurantParams>;
+export type RestaurantIdParams = z.infer<typeof restaurantIdParams>;
+export type RestaurantFilterQuery = z.infer<typeof restaurantFilterQuery>;
 export type RestaurantQuery = z.infer<typeof restaurantQuery>;

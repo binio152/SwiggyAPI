@@ -7,7 +7,7 @@ import { AppError } from "../utils/AppError";
 import Cuisine from "../models/Cuisine";
 import Utils from "../utils/Utils";
 import { RestaurantStatus } from "../constants";
-import { success } from "zod";
+import { Types } from "mongoose";
 
 class RestaurantController {
   static async addRestaurant(req: Request, res: Response, next: NextFunction) {
@@ -170,7 +170,7 @@ class RestaurantController {
       res.status(200).json({
         success: true,
         message: `Found ${restaurants.length} restaurants near by you`,
-        data: restaurants,
+        restaurants,
       });
     } catch (err) {
       console.log("Error occurred while fetching around restaurant");
@@ -178,7 +178,7 @@ class RestaurantController {
     }
   }
 
-  static async getOpeningRestaurant(
+  static async getOpeningRestaurants(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -194,7 +194,44 @@ class RestaurantController {
         restaurants,
       });
     } catch (err) {
-      console.log("Error occurred while fetching around restaurant");
+      console.log("Error occurred while fetching opening restaurant");
+      next(err);
+    }
+  }
+
+  static async filterRestaurant(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { filter } = req.query as { filter: string };
+      console.log(filter);
+
+      const cuisine = await Cuisine.findOne({
+        slug: Utils.createSlug(filter),
+      });
+
+      if (!cuisine)
+        return res.status(200).json({
+          success: true,
+          message: `There is not restaurant match with filter`,
+          data: [],
+        });
+
+      const restaurants = await Restaurant.find({
+        cuisines: cuisine._id,
+      })
+        .select("name address rating cuisines")
+        .populate("cuisines", "name");
+
+      res.status(200).json({
+        success: true,
+        message: `Found ${restaurants.length} with your filter`,
+        restaurants,
+      });
+    } catch (err) {
+      console.log("Error occurred while fetching filtered restaurant");
       next(err);
     }
   }
