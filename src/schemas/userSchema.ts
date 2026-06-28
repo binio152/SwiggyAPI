@@ -1,7 +1,8 @@
+import { Types } from "mongoose";
 import { z } from "zod";
 
 export const getUserById = z.object({
-  id: z.string("User ID is required"),
+  id:  z.string().refine(Types.ObjectId.isValid, "Invalid user id"),
 });
 
 export const phoneUpdate = z.object(

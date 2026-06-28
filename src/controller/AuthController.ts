@@ -101,25 +101,11 @@ class AuthController {
       // Password Hashing
       const hashedPassword = await AuthService.hashPassword(password);
 
-      // Generate OTP Send Email Verification
-      const { token: verification_token, token_ttl: verification_token_ttl } =
-        AuthService.generateVerificationToken(env.EMAIL_VERIFICATION_TOKEN_TTL);
-
-      const { error } = await ResendMail.sendVerificationToken({
-        token: verification_token,
-        ttl: env.EMAIL_VERIFICATION_TOKEN_TTL,
-        to: email,
-        type: EmailTypes.VERIFICATION,
-      });
-      if (error)
-        return res.status(400).json({ success: false, message: error });
-
       const newUser = await User.create({
         name,
         username,
         email,
-        verification_token,
-        verification_token_ttl,
+        verified_email: true,
         password: hashedPassword,
         phone,
         role: UserRole.ADMIN,

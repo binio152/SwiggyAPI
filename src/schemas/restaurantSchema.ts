@@ -1,10 +1,9 @@
 import z from "zod";
 import { RestaurantStatus } from "../constants";
+import { Types } from "mongoose";
 
 export const restaurantSchema = z.object({
-  city_id: z
-    .string("Restaurant city is required")
-    .min(6, "Restaurant city must be at least 3 characters"),
+  city_id: z.string().refine(Types.ObjectId.isValid, "Invalid city id"),
   name: z
     .string("Restaurant name is required")
     .min(3, "Restaurant name must be at least 3 characters"),
@@ -57,7 +56,7 @@ export const ratingSchema = z.object({
 });
 
 export const restaurantIdParams = z.object({
-  id: z.string("Restaurant id is required"),
+  id: z.string().refine(Types.ObjectId.isValid, "Invalid restaurant id"),
 });
 
 export const restaurantQuery = z.object({

@@ -12,6 +12,8 @@ import { env } from "./config/env";
 import CityRouter from "./routers/CityRouter";
 import RestaurantRouter from "./routers/RestaurantRouter";
 import CuisineRouter from "./routers/CuisineRouter";
+import ItemRouter from "./routers/ItemRouter";
+import CategoryRouter from "./routers/CategoryRouter";
 
 class Server {
   public app = express();
@@ -51,6 +53,8 @@ class Server {
     this.app.use("/api/cities", CityRouter);
     this.app.use("/api/restaurants", RestaurantRouter);
     this.app.use("/api/cuisines", CuisineRouter);
+    this.app.use("/api/items", ItemRouter);
+    this.app.use("/api/categories", CategoryRouter);
   }
 
   notFoundHandler() {

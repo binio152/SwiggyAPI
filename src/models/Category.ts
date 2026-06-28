@@ -2,11 +2,6 @@ import { Schema, model } from "mongoose";
 
 const categorySchema = new Schema(
   {
-    restaurant_id: {
-      type: Schema.Types.ObjectId,
-      ref: "Item",
-      required: true,
-    },
     name: { type: String, required: true, trim: true },
     is_active: { type: Boolean, default: true },
   },

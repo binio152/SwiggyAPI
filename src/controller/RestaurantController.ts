@@ -18,7 +18,6 @@ class RestaurantController {
         name,
         description,
         cuisines,
-
         address,
         lat,
         lng,
@@ -128,8 +127,6 @@ class RestaurantController {
       if (!restaurant)
         return next(new AppError("Restaurant is not exists", 404));
 
-      console.log(restaurant);
-
       restaurant.rating =
         (restaurant.rating_count * restaurant.rating + newRating) /
         (restaurant.rating_count + 1);
@@ -206,7 +203,6 @@ class RestaurantController {
   ) {
     try {
       const { filter } = req.query as { filter: string };
-      console.log(filter);
 
       const cuisine = await Cuisine.findOne({
         slug: Utils.createSlug(filter),

@@ -3,3 +3,7 @@ export * from "./authSchema";
 export * from "./imageSchema";
 export * from "./citySchema";
 export * from "./restaurantSchema";
+export * from "./categorySchema";
+export * from "./cuisineSchema";
+export * from "./itemSchema";
+export * from "./oderSchema";

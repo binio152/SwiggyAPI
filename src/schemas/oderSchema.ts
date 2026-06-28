@@ -1,20 +1,19 @@
 import z from "zod";
 import { OrderStatus, PaymentMethod } from "../constants";
+import { Types } from "mongoose";
 
 const orderItemValidation = z.object({
-  item_id: z.string("Item id is required"),
+  item_id: z.string().refine(Types.ObjectId.isValid, "Invalid item id"),
   name: z.string("Item name is required"),
   price: z.number("Item price is required"),
   quantity: z.number().int().positive("Quantity must be greater than 0"),
 });
 
 const orderSchema = z.object({
-  user_id: z
-    .string("User id is required")
-    .min(6, "User id must be at least 6 characters"),
+  user_id: z.string().refine(Types.ObjectId.isValid, "Invalid user id"),
   restaurant_id: z
-    .string("Restaurant id is required")
-    .min(6, "Restaurant id must be at least 6 characters"),
+    .string()
+    .refine(Types.ObjectId.isValid, "Invalid restaurant id"),
   order: z.array(orderItemValidation, "Order items are required"),
   instruction: z.string().optional(),
   address: z.string("Address is required").min(10),

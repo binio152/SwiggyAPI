@@ -34,6 +34,12 @@ class AuthRouter {
     );
 
     this.router.post(
+      "/signup-admin",
+      Validate.request({ schema: signUpSchema, type: "body" }),
+      AuthController.signUpAsRestaurantOwner,
+    );
+
+    this.router.post(
       "/forgot-password",
       Validate.request({ schema: forgotPasswordSchema, type: "body" }),
       AuthController.sendForgotPasswordOTP,
