@@ -10,6 +10,9 @@ export const itemSchema = z.object(
     category_id: z
       .string()
       .refine(Types.ObjectId.isValid, "Invalid restaurant id"),
+    name: z
+      .string("Name is required")
+      .min(3, "Name must be at least 3 character"),
     description: z.string().optional(),
     price: z.coerce
       .number("Price is required")
@@ -31,6 +34,6 @@ export const itemIdParamsSchema = z.object({
   id: z.coerce.string().refine(Types.ObjectId.isValid, "Invalid item id"),
 });
 
-export type Item = z.infer<typeof itemSchema>;
+export type ItemSchema = z.infer<typeof itemSchema>;
 export type ItemQuery = z.infer<typeof itemQuerySchema>;
 export type ItemIdParams = z.infer<typeof itemIdParamsSchema>;

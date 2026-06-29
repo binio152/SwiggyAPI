@@ -14,6 +14,7 @@ import RestaurantRouter from "./routers/RestaurantRouter";
 import CuisineRouter from "./routers/CuisineRouter";
 import ItemRouter from "./routers/ItemRouter";
 import CategoryRouter from "./routers/CategoryRouter";
+import OrderRouter from "./routers/OrderRouter";
 
 class Server {
   public app = express();
@@ -55,6 +56,7 @@ class Server {
     this.app.use("/api/cuisines", CuisineRouter);
     this.app.use("/api/items", ItemRouter);
     this.app.use("/api/categories", CategoryRouter);
+    this.app.use("/api/orders", OrderRouter);
   }
 
   notFoundHandler() {

@@ -4,8 +4,6 @@ import { OrderStatus, PaymentMethod } from "../constants";
 const orderItemSchema = new Schema(
   {
     item_id: { type: Schema.Types.ObjectId, ref: "Item", required: true },
-    name: { type: String, required: true },
-    price: { type: Number, required: true },
     quantity: { type: Number, required: true, min: 1 },
   },
   { _id: false },
@@ -24,9 +22,9 @@ const orderSchema = new Schema(
     address: { type: String, required: true },
     phone: { type: String, required: true },
     total: { type: Number, required: true },
-    deliveryCharge: { type: Number, required: true },
-    grandTotal: { type: Number, required: true },
-    payment_status: { type: Boolean, required: true },
+    delivery_charge: { type: Number, required: true },
+    grand_total: { type: Number, required: true },
+    payment_status: { type: Boolean, required: true, default: false },
     payment_mode: {
       type: String,
       enum: Object.values(PaymentMethod),
